@@ -122,23 +122,23 @@ console.log({
             Pilih Kategori
           </option>
 
-          <option value="atasan">
+          <option value="Atasan">
             Atasan
           </option>
 
-          <option value="bawahan">
+          <option value="Bawahan">
             Bawahan
           </option>
 
-          <option value="outer">
+          <option value="Outer">
             Outer
           </option>
 
-          <option value="alas_kaki">
+          <option value="Alas Kaki">
             Alas Kaki
           </option>
 
-          <option value="aksesoris">
+          <option value="Aksesoris">
             Aksesoris
           </option>
         </select>
