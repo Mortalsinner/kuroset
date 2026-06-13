@@ -5,11 +5,17 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
+// PERUBAHAN 1: Import komponen Alert milik Anda
+import Alert from "@/components/Alert";
+
 export default function EditProfilePage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // PERUBAHAN 2: Menyesuaikan type alert agar cocok dengan komponen Anda ("info" ditambahkan)
+  const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
   const [userId, setUserId] = useState("");
   const [email, setEmail] = useState("");
@@ -77,6 +83,7 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     try {
       setSaving(true);
+      setAlert(null); // Reset alert setiap mulai menyimpan
 
       let newAvatar = avatarUrl;
 
@@ -95,8 +102,6 @@ export default function EditProfilePage() {
         newAvatar = fileName;
       }
 
-      // PERUBAHAN ADA DI SINI:
-      // Menambahkan .select() dan variabel 'data' untuk menangkap respon balik
       const { data, error } = await supabase
         .from("users")
         .update({
@@ -110,20 +115,22 @@ export default function EditProfilePage() {
 
       if (error) throw error;
 
-      // PERUBAHAN ADA DI SINI: 
-      // Cek apakah update benar-benar terjadi pada baris data
       if (!data || data.length === 0) {
         throw new Error(
           "Gagal menyimpan! Pastikan RLS (Row Level Security) mengizinkan UPDATE."
         );
       }
 
-      alert("Profile berhasil diperbarui");
-      router.push("/dashboard");
+      setAlert({ message: "Profile berhasil diperbarui ✨", type: "success" });
+      
+      // Beri jeda agar user bisa melihat pesan sukses dari komponen Alert
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
 
     } catch (error: any) {
       console.error(error);
-      alert(error.message);
+      setAlert({ message: error.message, type: "error" });
     } finally {
       setSaving(false);
     }
@@ -138,7 +145,17 @@ export default function EditProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-base-200 p-6">
+    <main className="min-h-screen bg-base-200 p-6 relative">
+      
+      {/* PERUBAHAN 3: Memanggil komponen Alert milik Anda */}
+      {alert && (
+        <Alert
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
       <div className="max-w-xl mx-auto card bg-base-100 shadow-xl p-6">
         <h1 className="text-3xl font-bold mb-6">Edit Profile ✨</h1>
 
@@ -149,7 +166,7 @@ export default function EditProfilePage() {
                 src={preview}
                 alt="avatar"
                 fill
-                className="rounded-full object-cover"
+                className="rounded-full object-cover border"
               />
             </div>
           )}
@@ -165,7 +182,7 @@ export default function EditProfilePage() {
         <input
           value={email}
           disabled
-          className="input input-bordered w-full mb-4"
+          className="input input-bordered w-full mb-4 bg-base-200 cursor-not-allowed"
         />
 
         <input
