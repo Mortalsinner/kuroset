@@ -27,10 +27,7 @@ export default function CreateOutfitPage() {
   }, []);
 
   const getItems = async () => {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const { data, error } = await supabase
@@ -48,21 +45,12 @@ export default function CreateOutfitPage() {
   };
 
   const toggleItem = (item: Item) => {
-    const exists = selectedItems.some(
-      (selected) => selected.id_item === item.id_item
-    );
+    const exists = selectedItems.some((selected) => selected.id_item === item.id_item);
 
     if (exists) {
-      setSelectedItems(
-        selectedItems.filter(
-          (selected) => selected.id_item !== item.id_item
-        )
-      );
+      setSelectedItems(selectedItems.filter((selected) => selected.id_item !== item.id_item));
     } else {
-      setSelectedItems([
-        ...selectedItems,
-        item
-      ]);
+      setSelectedItems([...selectedItems, item]);
     }
   };
 
@@ -79,17 +67,10 @@ export default function CreateOutfitPage() {
 
     try {
       setLoading(true);
-
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const {
-        data: outfit,
-        error: outfitError
-      } = await supabase
+      const { data: outfit, error: outfitError } = await supabase
         .from("outfits")
         .insert({
           id_user: user.id,
@@ -107,241 +88,225 @@ export default function CreateOutfitPage() {
         id_item: item.id_item
       }));
 
-      const {
-        error: itemError
-      } = await supabase
+      const { error: itemError } = await supabase
         .from("outfit_items")
         .insert(outfitItems);
 
       if (itemError) throw itemError;
 
       alert("Outfit berhasil dibuat");
-
       router.push("/outfit");
-
     } catch (error: any) {
       console.error(error);
       alert(error.message);
-
     } finally {
       setLoading(false);
     }
   };
 
   const getImageUrl = (path: string) => {
-    return supabase.storage
-      .from("wardrobe-images")
-      .getPublicUrl(path)
-      .data.publicUrl;
+    return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
   return (
-    <main className="min-h-screen bg-base-200 p-6">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* HEADER SECTION */}
+        <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-black tracking-tighter uppercase">
+              Create <span className="text-[#F652A0] [text-shadow:2px_2px_0px_#000]">Outfit</span> ✨
+            </h1>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-tight mt-1">
+              Mix and match items to blueprint a brand new look
+            </p>
+          </div>
+        </header>
 
-        <h1 className="text-4xl font-bold mb-8">
-          Create Outfit ✨
-        </h1>
+        {/* WORKSPACE CONTENT GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          
+          {/* FORM INFORMATION COMPONENT */}
+          <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
+            <h2 className="text-xl font-black uppercase tracking-tight border-b-4 border-black pb-2 flex items-center gap-2">
+              <span>📝</span> Outfit Details
+            </h2>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-
-          <div className="card bg-base-100 shadow">
-            <div className="card-body">
-
-              <h2 className="card-title">
-                Outfit Information
-              </h2>
-
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-wide">Outfit Name</label>
               <input
-                className="input input-bordered w-full"
-                placeholder="Outfit name"
+                type="text"
+                className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#52D1F6] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                placeholder="e.g., Cozy Sunday Minimalist"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+            </div>
 
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-wide">Layout Notes / Description</label>
               <textarea
-                className="textarea textarea-bordered w-full"
-                placeholder="Notes"
+                className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#52D1F6] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-28 resize-none transition-colors"
+                placeholder="Add style context, guidelines, or seasonal remarks..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
-
-              <div className="mt-4">
-
-                <h3 className="font-semibold mb-3">
-                  Visibility
-                </h3>
-
-                <label className="flex items-center gap-3 mb-3 cursor-pointer">
-
-                  <input
-                    type="radio"
-                    name="visibility"
-                    className="radio"
-                    checked={!isPublic}
-                    onChange={() => setIsPublic(false)}
-                  />
-
-                  <div>
-                    <p className="font-medium">
-                      Private 🔒
-                    </p>
-
-                    <p className="text-sm text-gray-500">
-                      Only you can see this outfit
-                    </p>
-                  </div>
-
-                </label>
-
-
-                <label className="flex items-center gap-3 cursor-pointer">
-
-                  <input
-                    type="radio"
-                    name="visibility"
-                    className="radio radio-primary"
-                    checked={isPublic}
-                    onChange={() => setIsPublic(true)}
-                  />
-
-                  <div>
-                    <p className="font-medium">
-                      Public 🌎
-                    </p>
-
-                    <p className="text-sm text-gray-500">
-                      Other users can see this outfit
-                    </p>
-                  </div>
-
-                </label>
-
-              </div>
-
-
-              <button
-                onClick={saveOutfit}
-                disabled={loading}
-                className="btn btn-primary mt-5"
-              >
-                {loading ? "Saving..." : "Save Outfit"}
-              </button>
-
             </div>
-          </div>
 
+            {/* CUSTOM NEO-BRUTALIST VISIBILITY SELECTOR */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-black uppercase tracking-wide">Visibility Vault</h3>
+              
+              <div className="grid grid-cols-1 gap-3">
+                <div 
+                  onClick={() => setIsPublic(false)}
+                  className={`border-4 border-black p-3 flex items-start gap-3 cursor-pointer transition-all ${
+                    !isPublic 
+                      ? 'bg-[#52D1F6] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]' 
+                      : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-xl">🔒</span>
+                  <div>
+                    <p className="font-black text-sm uppercase">Private Configuration</p>
+                    <p className="text-[11px] font-bold text-gray-600 leading-tight mt-0.5">Only you can access this look layout</p>
+                  </div>
+                </div>
 
-          <div className="lg:col-span-2">
+                <div 
+                  onClick={() => setIsPublic(true)}
+                  className={`border-4 border-black p-3 flex items-start gap-3 cursor-pointer transition-all ${
+                    isPublic 
+                      ? 'bg-[#D5E04D] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]' 
+                      : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-xl">🌎</span>
+                  <div>
+                    <p className="font-black text-sm uppercase">Public Arrangement</p>
+                    <p className="text-[11px] font-bold text-gray-600 leading-tight mt-0.5">Visible to the whole community timeline</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <div className="card bg-base-100 shadow mb-6">
+            {/* ACTION DISPATCHER BUTTON */}
+            <button
+              onClick={saveOutfit}
+              disabled={loading}
+              className="w-full bg-black text-white disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(246,82,160,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(246,82,160,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-widest text-sm"
+            >
+              {loading ? "⚙️ Locking Formula..." : "Complete Outfit Setup 🚀"}
+            </button>
+          </section>
 
-              <div className="card-body">
+          {/* OUTFIT ASSEMBLY PREVIEW PANEL */}
+          <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:col-span-2 min-h-[420px] flex flex-col justify-between">
+            <div>
+              <h2 className="text-xl font-black uppercase tracking-tight border-b-4 border-black pb-2 flex items-center gap-2">
+                <span>🖼️</span> Live Blueprint Canvas ({selectedItems.length})
+              </h2>
 
-                <h2 className="card-title">
-                  Outfit Preview
-                </h2>
-
-                <div className="grid grid-cols-3 gap-4 mt-4">
-
-                  {selectedItems.length === 0 && (
-                    <p className="text-gray-400 col-span-3">
-                      Select clothes below
-                    </p>
-                  )}
-
+              {selectedItems.length === 0 ? (
+                <div className="py-24 text-center border-4 border-dashed border-gray-300 mt-6 flex flex-col items-center justify-center">
+                  <span className="text-4xl mb-2">👕</span>
+                  <p className="font-black text-sm text-gray-400 uppercase tracking-wider">Canvas Empty</p>
+                  <p className="text-xs font-bold text-gray-400 max-w-xs mt-1">Select items from your closet catalog below to append them into this look combination.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
                   {selectedItems.map((item) => (
-
                     <div
-                      key={item.id_item}
-                      className="relative h-40 rounded-xl overflow-hidden"
+                      key={`preview-${item.id_item}`}
+                      className="relative h-40 bg-gray-50 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none overflow-hidden group"
                     >
-
                       <Image
                         src={getImageUrl(item.image_url)}
                         alt={item.name}
                         fill
                         className="object-cover"
                       />
-
+                      <div className="absolute top-2 left-2 bg-[#F652A0] text-white text-[9px] font-black border-2 border-black px-1.5 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase">
+                        {item.category}
+                      </div>
+                      <button
+                        onClick={() => toggleItem(item)}
+                        className="absolute bottom-2 right-2 bg-black text-white font-black text-[10px] border-2 border-white px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 uppercase tracking-tighter"
+                      >
+                        Remove ❌
+                      </button>
                     </div>
-
                   ))}
-
                 </div>
-
-              </div>
-
+              )}
             </div>
+          </section>
+        </div>
 
-
+        {/* CLOSET SELECTION CATALOGUE */}
+        <section className="space-y-4 pt-4">
+          <div className="border-b-4 border-black pb-2">
+            <h2 className="text-2xl font-black uppercase tracking-tighter">
+              🗄️ Select Wardrobe Pieces
+            </h2>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mt-0.5">
+              Click individual items to select or deselect them from your active workspace array.
+            </p>
           </div>
 
-        </div>
+          {items.length === 0 ? (
+            <div className="bg-white border-4 border-dashed border-black p-12 text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <p className="font-black text-lg uppercase">Your closet is bone dry!</p>
+              <p className="text-sm font-bold text-gray-500 mt-1">Upload items into your personal wardrobe page first before mixing blueprints.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+              {items.map((item) => {
+                const selected = selectedItems.some((s) => s.id_item === item.id_item);
 
+                return (
+                  <button
+                    key={item.id_item}
+                    onClick={() => toggleItem(item)}
+                    className={`bg-white border-4 border-black text-left flex flex-col justify-between overflow-hidden transition-all text-black ${
+                      selected
+                        ? "bg-[#D5E04D] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] translate-x-[2px] translate-y-[2px]"
+                        : "shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1"
+                    }`}
+                  >
+                    <div className="w-full">
+                      {/* PICTURE SEGMENT */}
+                      <figure className="relative h-44 bg-gray-100 border-b-2 border-black w-full">
+                        <Image
+                          src={getImageUrl(item.image_url)}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                        />
+                        {selected && (
+                          <div className="absolute top-2 right-2 bg-[#F652A0] text-white border-2 border-black text-[9px] font-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wider">
+                            IN PACK ✔️
+                          </div>
+                        )}
+                      </figure>
 
-        <h2 className="text-2xl font-bold mt-10 mb-5">
-          Choose Clothes
-        </h2>
-
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-
-          {items.map((item) => {
-
-            const selected = selectedItems.some(
-              (selected) => selected.id_item === item.id_item
-            );
-
-            return (
-
-              <button
-                key={item.id_item}
-                onClick={() => toggleItem(item)}
-                className={`
-                  card
-                  bg-base-100
-                  shadow
-                  overflow-hidden
-                  ${
-                    selected
-                    ? "ring-4 ring-primary"
-                    : ""
-                  }
-                `}
-              >
-
-                <div className="relative h-48">
-
-                  <Image
-                    src={getImageUrl(item.image_url)}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                  />
-
-                </div>
-
-
-                <div className="p-4 text-left">
-
-                  <h3 className="font-bold">
-                    {item.name}
-                  </h3>
-
-                  <div className="badge mt-2">
-                    {item.category}
-                  </div>
-
-                </div>
-
-              </button>
-
-            );
-
-          })}
-
-        </div>
+                      {/* TEXT CONTENT SEGMENT */}
+                      <div className="p-4 space-y-1.5">
+                        <span className="bg-[#52D1F6] border-2 border-black text-[9px] font-black px-2 py-0.5 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] uppercase inline-block">
+                          {item.category}
+                        </span>
+                        <h3 className="font-black text-sm uppercase tracking-tight line-clamp-1" title={item.name}>
+                          {item.name}
+                        </h3>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
       </div>
     </main>

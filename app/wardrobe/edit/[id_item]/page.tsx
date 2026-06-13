@@ -1,981 +1,302 @@
 "use client";
 
-import {
-  useEffect,
-  useState
-} from "react";
-
-import {
-  useParams,
-  useRouter
-} from "next/navigation";
-
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-
-import {
-  supabase
-} from "@/lib/supabase";
-
+import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 
+export default function EditItemPage() {
+  const router = useRouter();
+  const params = useParams();
+  const id_item = params.id_item as string;
 
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-export default function EditItemPage(){
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [color, setColor] = useState("");
+  const [shopUrl, setShopUrl] = useState("");
+  const [notes, setNotes] = useState("");
 
+  const [oldImage, setOldImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
 
-  const router=useRouter();
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+  } | null>(null);
 
-  const params=useParams();
-
-
-  const id_item=params.id_item as string;
-
-
-
-  const [loading,setLoading]=useState(true);
-
-  const [saving,setSaving]=useState(false);
-
-
-
-  const [name,setName]=useState("");
-
-  const [category,setCategory]=useState("");
-
-  const [color,setColor]=useState("");
-
-  const [shopUrl,setShopUrl]=useState("");
-
-  const [notes,setNotes]=useState("");
-
-
-
-  const [oldImage,setOldImage]=useState("");
-
-  const [imageFile,setImageFile]=useState<File|null>(null);
-
-  const [preview,setPreview]=useState("");
-
-
-
-
-  const [alert,setAlert]=useState<{
-
-    message:string;
-
-    type:"success"|"error"|"info";
-
-  }|null>(null);
-
-
-
-
-
-
-
-
-  useEffect(()=>{
-
-
-    if(id_item){
-
+  useEffect(() => {
+    if (id_item) {
       fetchItem();
-
     }
+  }, [id_item]);
 
-
-  },[id_item]);
-
-
-
-
-
-
-
-
-
-  const fetchItem=async()=>{
-
-
-    try{
-
-
-
-      const {
-        data,
-        error
-
-      }=await supabase
-
+  const fetchItem = async () => {
+    try {
+      const { data, error } = await supabase
         .from("items")
-
         .select("*")
-
-        .eq(
-          "id_item",
-          id_item
-        )
-
+        .eq("id_item", id_item)
         .single();
 
+      if (error) throw error;
 
+      setName(data.name);
+      setCategory(data.category);
+      setColor(data.color || "");
+      setShopUrl(data.shop_url || "");
+      setNotes(data.notes || "");
+      setOldImage(data.image_url);
 
+      const imageUrl = supabase.storage
+        .from("wardrobe-images")
+        .getPublicUrl(data.image_url).data.publicUrl;
 
-
-
-      if(error)
-        throw error;
-
-
-
-
-
-
-      setName(
-        data.name
-      );
-
-
-      setCategory(
-        data.category
-      );
-
-
-      setColor(
-        data.color || ""
-      );
-
-
-      setShopUrl(
-        data.shop_url || ""
-      );
-
-
-      setNotes(
-        data.notes || ""
-      );
-
-
-
-
-      setOldImage(
-        data.image_url
-      );
-
-
-
-
-
-
-
-      const imageUrl=
-
-      supabase.storage
-
-        .from(
-          "wardrobe-images"
-        )
-
-        .getPublicUrl(
-          data.image_url
-        )
-
-        .data.publicUrl;
-
-
-
-
-
-
-      setPreview(
-        imageUrl
-      );
-
-
-
-
-    }catch(error:any){
-
-
-
+      setPreview(imageUrl);
+    } catch (error: any) {
       setAlert({
-
-        message:error.message,
-
-        type:"error"
-
+        message: error.message,
+        type: "error"
       });
-
-
-
-    }finally{
-
-
+    } finally {
       setLoading(false);
-
-
     }
-
-
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-
-
-
-
-
-
-
-  const handleImageChange=(
-
-    e:React.ChangeEvent<HTMLInputElement>
-
-  )=>{
-
-
-    const file=e.target.files?.[0];
-
-
-
-    if(!file)
-      return;
-
-
-
-
-
-    setImageFile(
-      file
-    );
-
-
-
-    setPreview(
-
-      URL.createObjectURL(
-        file
-      )
-
-    );
-
-
-
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
   };
 
-
-
-
-
-
-
-
-
-  const handleUpdate=async(
-
-    e:React.FormEvent
-
-  )=>{
-
-
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
-
-
-
-    try{
-
-
-
+    try {
       setSaving(true);
+      let imageUrl = oldImage;
 
+      if (imageFile) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User tidak ditemukan");
 
+        const ext = imageFile.name.split(".").pop();
+        const fileName = `${user.id}/${Date.now()}.${ext}`;
 
+        const { error: uploadError } = await supabase.storage
+          .from("wardrobe-images")
+          .upload(fileName, imageFile);
 
-      let imageUrl=oldImage;
+        if (uploadError) throw uploadError;
 
-
-
-
-
-
-
-      if(imageFile){
-
-
-
-        const {
-
-          data:{
-            user
-          }
-
-        }=await supabase.auth.getUser();
-
-
-
-
-
-        if(!user)
-
-          throw new Error(
-            "User tidak ditemukan"
-          );
-
-
-
-
-
-
-
-        const ext=
-
-        imageFile.name
-
-        .split(".")
-
-        .pop();
-
-
-
-
-
-        const fileName=
-
-        `${user.id}/${Date.now()}.${ext}`;
-
-
-
-
-
-
-
-        const {
-
-          error:uploadError
-
-        }=await supabase.storage
-
-          .from(
-            "wardrobe-images"
-          )
-
-          .upload(
-
-            fileName,
-
-            imageFile
-
-          );
-
-
-
-
-
-
-        if(uploadError)
-
-          throw uploadError;
-
-
-
-
-
-
-
-        if(oldImage){
-
-
+        if (oldImage) {
           await supabase.storage
-
-            .from(
-              "wardrobe-images"
-            )
-
-            .remove([
-
-              oldImage
-
-            ]);
-
+            .from("wardrobe-images")
+            .remove([oldImage]);
         }
 
-
-
-
-
-
-
-        imageUrl=fileName;
-
-
-
+        imageUrl = fileName;
       }
 
-
-
-
-
-
-
-
-
-
-      const {
-
-        error
-
-      }=await supabase
-
+      const { error } = await supabase
         .from("items")
-
         .update({
-
-
           name,
-
           category,
-
           color,
-
-          shop_url:shopUrl,
-
+          shop_url: shopUrl,
           notes,
-
-          image_url:imageUrl
-
-
+          image_url: imageUrl
         })
+        .eq("id_item", id_item);
 
-        .eq(
-
-          "id_item",
-
-          id_item
-
-        );
-
-
-
-
-
-
-
-
-      if(error)
-
-        throw error;
-
-
-
-
-
-
+      if (error) throw error;
 
       setAlert({
-
-        message:"Item berhasil diperbarui",
-
-        type:"success"
-
+        message: "Item berhasil diperbarui",
+        type: "success"
       });
 
-
-
-
-
-
-
-
-      setTimeout(()=>{
-
-
-        router.push(
-          "/wardrobe"
-        );
-
-
-      },1000);
-
-
-
-
-
-
-
-
-    }catch(error:any){
-
-
-
+      setTimeout(() => {
+        router.push("/wardrobe");
+      }, 1000);
+    } catch (error: any) {
       setAlert({
-
-        message:error.message,
-
-        type:"error"
-
+        message: error.message,
+        type: "error"
       });
-
-
-
-    }finally{
-
-
+    } finally {
       setSaving(false);
-
-
     }
-
-
   };
 
-
-
-
-
-
-
-
-
-  if(loading){
-
-
-    return(
-
-      <main className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
-      ">
-
-        Loading...
-
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#D5E04D] text-black font-black text-2xl tracking-widest uppercase animate-pulse">
+        ⚡ Hydrating Closet Item Archive... ⚡
       </main>
-
     );
-
-
   }
 
-
-
-
-
-
-
-
-
-
-  return(
-
-
-
-    <main className="
-      min-h-screen
-      bg-base-200
-      p-6
-    ">
-
-
-
-
-
-      {
-        alert && (
-
-          <Alert
-
-            message={
-              alert.message
-            }
-
-            type={
-              alert.type
-            }
-
-            onClose={()=>setAlert(null)}
-
-          />
-
-        )
-      }
-
-
-
-
-
-
-
-      <div className="
-        max-w-xl
-        mx-auto
-      ">
-
-
-
-        <div className="
-          card
-          bg-base-100
-          shadow-xl
-        ">
-
-
-
-          <div className="
-            card-body
-          ">
-
-
-
-
-
-            <h1 className="
-              text-3xl
-              font-bold
-            ">
-
-
-              Edit Item
-
-
-            </h1>
-
-
-
-
-
-
-
-
-
-            <div className="
-              relative
-              h-72
-              mt-5
-            ">
-
-
-              {
-                preview && (
-
-
-                  <Image
-
-                    src={preview}
-
-                    alt="preview"
-
-                    fill
-
-                    className="
-                      object-cover
-                      rounded-xl
-                    "
-
-                  />
-
-
-                )
-              }
-
-
+  return (
+    <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black">
+      {alert && (
+        <Alert
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
+      <div className="max-w-xl mx-auto">
+        <form 
+          onSubmit={handleUpdate}
+          className="bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6"
+        >
+          {/* HEADER FORM */}
+          <div className="border-b-4 border-black pb-4 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-black uppercase tracking-tighter">
+                Edit <span className="text-[#F652A0] [text-shadow:1.5px_1.5px_0px_#000]">Item</span> ⚙️
+              </h1>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mt-0.5">
+                Modifying catalog entry asset specs
+              </p>
+            </div>
+            <span className="text-xs bg-black text-white px-2 py-1 font-mono tracking-tight text-center uppercase">
+              ID: {id_item.slice(0, 6)}...
+            </span>
+          </div>
+
+          {/* VISUAL MEDIA MEDIA PREVIEW ACCORDION */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-black uppercase tracking-wide block">Item Asset Render</label>
+            <div className="relative h-72 w-full bg-gray-100 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden group">
+              {preview ? (
+                <Image
+                  src={preview}
+                  alt="Current item specification visualization"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center font-bold text-xs uppercase text-gray-400">
+                  No Frame Snapshot Available
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* MEDIA UPLOADER CONTROL */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-black uppercase tracking-wide block">Replace Image File</label>
+            <div className="relative border-4 border-black bg-white p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full text-xs font-mono font-bold file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:bg-[#52D1F6] file:text-black file:font-black file:uppercase file:text-[10px] file:cursor-pointer hover:file:bg-white transition-colors cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* TEXT FIELD INPUTS GROUP */}
+          <div className="space-y-4 pt-2">
+            
+            {/* INPUT NAME */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-wide block">Item Identity Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Vintage Oversized Bomber Jacket"
+                required
+                className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#D5E04D] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm"
+              />
             </div>
 
-
-
-
-
-
-
-
-
-            <input
-
-              type="file"
-
-              accept="image/*"
-
-              onChange={handleImageChange}
-
-              className="
-                file-input
-                file-input-bordered
-                w-full
-                mt-5
-              "
-
-            />
-
-
-
-
-
-
-
-
-
-            <input
-
-
-              value={name}
-
-
-              onChange={(e)=>
-
-                setName(
-                  e.target.value
-                )
-
-              }
-
-
-              placeholder="Nama Item"
-
-
-              className="
-                input
-                input-bordered
-                w-full
-              "
-
-
-            />
-
-
-
-
-
-
-
-
-
-
-            <select
-
-
-              value={category}
-
-
-              onChange={(e)=>
-
-                setCategory(
-                  e.target.value
-                )
-
-              }
-
-
-              className="
-                select
-                select-bordered
-                w-full
-              "
-
-
-            >
-
-
-              <option>
-                Atasan
-              </option>
-
-
-              <option>
-                Bawahan
-              </option>
-
-
-              <option>
-                Outer
-              </option>
-
-
-              <option>
-                Alas Kaki
-              </option>
-
-
-              <option>
-                Aksesoris
-              </option>
-
-
-            </select>
-
-
-
-
-
-
-
-
-
-            <input
-
-              value={color}
-
-              onChange={(e)=>
-
-                setColor(
-                  e.target.value
-                )
-
-              }
-
-              placeholder="Warna"
-
-              className="
-                input
-                input-bordered
-                w-full
-              "
-
-            />
-
-
-
-
-
-
-
-
-
-            <input
-
-
-              value={shopUrl}
-
-
-              onChange={(e)=>
-
-                setShopUrl(
-                  e.target.value
-                )
-
-              }
-
-
-              placeholder="Link Store"
-
-
-              className="
-                input
-                input-bordered
-                w-full
-              "
-
-
-            />
-
-
-
-
-
-
-
-
-
-            <textarea
-
-
-              value={notes}
-
-
-              onChange={(e)=>
-
-                setNotes(
-                  e.target.value
-                )
-
-              }
-
-
-              placeholder="Catatan"
-
-
-              className="
-                textarea
-                textarea-bordered
-                w-full
-              "
-
-
-            />
-
-
-
-
-
-
-
-
-
-            <button
-
-
-              disabled={saving}
-
-
-              onClick={handleUpdate}
-
-
-              className="
-                btn
-                btn-primary
-                w-full
-              "
-
-
-            >
-
-
-
-              {
-
-                saving
-
-                ?
-
-                "Saving..."
-
-                :
-
-                "Update Item"
-
-
-              }
-
-
-
-            </button>
-
-
-
-
-
+            {/* INPUT CATEGORY SELECT */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-wide block">Wardrobe Taxonomy Category</label>
+              <div className="relative">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                  className="w-full bg-white border-4 border-black p-3 font-bold text-black appearance-none focus:outline-none focus:bg-[#52D1F6] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm cursor-pointer"
+                >
+                  <option value="" disabled>Pilih Kategori</option>
+                  <option value="Atasan">Atasan</option>
+                  <option value="Bawahan">Bawahan</option>
+                  <option value="Outer">Outer</option>
+                  <option value="Alas Kaki">Alas Kaki</option>
+                  <option value="Aksesoris">Aksesoris</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 font-black border-l-4 border-black bg-black text-white">
+                  ▼
+                </div>
+              </div>
+            </div>
+
+            {/* TWO COLUMN GRID FOR COLOR & SHOP URL */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wide block">Color Code Hue</label>
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  placeholder="e.g., Midnight Black"
+                  className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#D5E04D] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wide block">Acquisition Link Store</label>
+                <input
+                  type="url"
+                  value={shopUrl}
+                  onChange={(e) => setShopUrl(e.target.value)}
+                  placeholder="https://store.com/item"
+                  className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#D5E04D] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm"
+                />
+              </div>
+            </div>
+
+            {/* INPUT NOTES TEXTAREA */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-wide block">Structural Notes & Context</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Write specific material composition, cleaning conditions or storage metrics..."
+                rows={3}
+                className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#D5E04D] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm resize-none"
+              />
+            </div>
 
           </div>
 
-
-
-
-        </div>
-
-
-
-
+          {/* TRANSACTIONAL MUTATION ACTION TRIGGER */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full bg-[#D5E04D] text-black disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-wider text-sm"
+            >
+              {saving ? "⚙️ Saving System Config..." : "Commit Update Data 💾"}
+            </button>
+          </div>
+        </form>
       </div>
-
-
-
-
     </main>
-
-
-
   );
-
-
 }
