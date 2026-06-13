@@ -36,12 +36,12 @@ export default function LoginPage() {
       }
 
       setAlert({
-        message: "Login berhasil! Mengalihkan ke lemari digital...",
+        message: "We're taking you to your dashboard.",
         type: "success",
       });
 
       setTimeout(() => {
-        router.push("/wardrobe");
+        router.push("/dashboard");
       }, 1000);
     } catch (error: any) {
       console.error(error);

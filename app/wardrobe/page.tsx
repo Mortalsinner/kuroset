@@ -108,8 +108,8 @@ export default function WardrobePage() {
 
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* HEADER SECTION */}
-        <header className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* HEADER SECTION WITH NAVIGATION BUTTONS */}
+        <header className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase">
               My <span className="text-[#52D1F6] [text-shadow:2px_2px_0px_#000]">Wardrobe</span> 👕
@@ -118,12 +118,25 @@ export default function WardrobePage() {
               Manage and organize your personal digital clothing collection
             </p>
           </div>
-          <Link
-            href="/wardrobe/new"
-            className="bg-[#D5E04D] text-black font-black border-4 border-black px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider inline-block text-center"
-          >
-            Add New Item ➕
-          </Link>
+
+          {/* ACTION BUTTON GROUP */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            {/* TOMBOL KEMBALI KE DASHBOARD */}
+            <Link
+              href="/dashboard"
+              className="bg-white text-black font-black border-4 border-black px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider block w-full sm:w-auto text-center"
+            >
+              ⬅️ Dashboard
+            </Link>
+
+            {/* TOMBOL TAMBAH ITEM BARU */}
+            <Link
+              href="/wardrobe/new"
+              className="bg-[#D5E04D] text-black font-black border-4 border-black px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider block w-full sm:w-auto text-center"
+            >
+              Add New Item ➕
+            </Link>
+          </div>
         </header>
 
         {/* WARDROBE CONTENT */}
@@ -170,7 +183,7 @@ export default function WardrobePage() {
                     </h2>
 
                     {item.color && (
-                      <div className="flex items-center gap-1.5 font-bold text-xs uppercase text-gray-7xl">
+                      <div className="flex items-center gap-1.5 font-bold text-xs uppercase text-gray-700">
                         <span>🎨 Color:</span>
                         <span className="bg-gray-100 border border-black px-1.5 py-0.5 text-[10px] font-black">
                           {item.color}
@@ -225,7 +238,7 @@ export default function WardrobePage() {
             <h3 className="font-black text-2xl uppercase tracking-tight text-[#F652A0]">
               Delete Item? ⚠️
             </h3>
-            <p className="font-bold text-sm text-gray-8xl">
+            <p className="font-bold text-sm text-gray-800">
               Are you sure you want to permanently throw away: <br />
               <span className="bg-gray-100 border border-black px-1.5 py-0.5 inline-block font-black text-black my-2 uppercase tracking-wide">
                 {deleteItemData.name}

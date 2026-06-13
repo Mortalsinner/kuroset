@@ -130,7 +130,7 @@ export default function OutfitPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* TOP COMPONENT / ACTION HEADER */}
-        <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase">
               My <span className="text-[#52D1F6] [text-shadow:2px_2px_0px_#000]">Outfits</span> ✨
@@ -140,12 +140,23 @@ export default function OutfitPage() {
             </p>
           </div>
           
-          <Link
-            href="/outfit/new"
-            className="bg-[#F652A0] text-white font-black border-4 border-black px-5 py-3 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all block w-full sm:w-auto text-center"
-          >
-            Create Outfit +
-          </Link>
+          {/* BUTTON GROUP AREA */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            {/* TOMBOL KEMBALI KE DASHBOARD */}
+            <Link
+              href="/dashboard"
+              className="bg-white text-black font-black border-4 border-black px-5 py-3 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all block w-full sm:w-auto text-center"
+            >
+              ⬅️ Dashboard
+            </Link>
+
+            <Link
+              href="/outfit/new"
+              className="bg-[#F652A0] text-white font-black border-4 border-black px-5 py-3 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all block w-full sm:w-auto text-center"
+            >
+              Create Outfit +
+            </Link>
+          </div>
         </header>
 
         {/* OUTFITS MATRIX GRID */}
@@ -177,19 +188,21 @@ export default function OutfitPage() {
                       No Items In Mix
                     </div>
                   ) : (
-                    outfit.items.slice(0, 3).map((item: any) => (
-                      <figure
-                        key={`grid-pic-${item.id_item}`}
-                        className="relative h-full w-full border-r-2 border-black last:border-r-0 bg-white overflow-hidden"
-                      >
-                        <Image
-                          src={getImageUrl(item.image_url)}
-                          alt="Outfit element segment"
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </figure>
-                    ))
+                    <div className="contents">
+                      {outfit.items.slice(0, 3).map((item: any) => (
+                        <figure
+                          key={`grid-pic-${item.id_item}`}
+                          className="relative h-full w-full border-r-2 border-black last:border-r-0 bg-white overflow-hidden"
+                        >
+                          <Image
+                            src={getImageUrl(item.image_url)}
+                            alt="Outfit element segment"
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </figure>
+                      ))}
+                    </div>
                   )}
 
                   {/* ADDITIONAL ITEMS COUNTER OVERLAY */}
@@ -254,6 +267,7 @@ export default function OutfitPage() {
             ))}
           </div>
         )}
+        
       </div>
 
       {/* CONFIRMATION WARNING MODAL DIALOG */}

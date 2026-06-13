@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 
@@ -145,7 +146,7 @@ export default function EditItemPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black">
+    <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black relative">
       {alert && (
         <Alert
           message={alert.message}
@@ -154,7 +155,18 @@ export default function EditItemPage() {
         />
       )}
 
-      <div className="max-w-xl mx-auto">
+      <div className="max-w-xl mx-auto space-y-6">
+        
+        {/* NAVIGATION BUTTON TO WARDROBE PAGE */}
+        <div className="flex justify-start">
+          <Link
+            href="/wardrobe"
+            className="bg-white text-black font-black border-4 border-black px-4 py-2 text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider inline-block text-center"
+          >
+            ⬅️ Wardrobe
+          </Link>
+        </div>
+
         <form 
           onSubmit={handleUpdate}
           className="bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6"

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Link from "next/link";
 
 export default function AddItemPage() {
   const router = useRouter();
@@ -103,6 +104,12 @@ export default function AddItemPage() {
           
           {/* HEADER SEKSYEN */}
           <div className="border-b-4 border-black pb-4 mb-6">
+            <Link 
+              href="/wardrobe" 
+              className="inline-block mb-4 bg-black text-white px-4 py-2 font-black text-[10px] uppercase hover:bg-[#F652A0] transition-all border-2 border-black hover:translate-x-[2px] hover:translate-y-[2px]"
+            >
+              ← Back to List
+            </Link>
             <h1 className="text-3xl font-black uppercase tracking-tighter">
               Add New <span className="text-[#52D1F6] [text-shadow:1.5px_1.5px_0px_#000]">Item</span> 👕
             </h1>
@@ -113,7 +120,7 @@ export default function AddItemPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             
-            {/* PRATINJAU GAMBAR (OTOMATIS MUNCUL JIKA FILE DIPILIH) */}
+            {/* PRATINJAU GAMBAR */}
             {image && (
               <div className="space-y-1.5">
                 <label className="text-xs font-black uppercase tracking-wide block">Selected Asset Preview</label>
@@ -154,7 +161,7 @@ export default function AddItemPage() {
               />
             </div>
 
-            {/* INPUT KATEGORI (SELECT CUSTOM) */}
+            {/* INPUT KATEGORI */}
             <div className="space-y-1.5">
               <label className="text-xs font-black uppercase tracking-wide block">Taxonomy Category</label>
               <div className="relative">
@@ -177,7 +184,7 @@ export default function AddItemPage() {
               </div>
             </div>
 
-            {/* GRID DUA KOLOM: WARNA & LINK TOKO */}
+            {/* GRID DUA KOLOM */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-black uppercase tracking-wide block">Colorway Tone</label>
@@ -202,7 +209,7 @@ export default function AddItemPage() {
               </div>
             </div>
 
-            {/* INPUT CATATAN (TEXTAREA) */}
+            {/* INPUT CATATAN */}
             <div className="space-y-1.5">
               <label className="text-xs font-black uppercase tracking-wide block">Additional Specs / Notes</label>
               <textarea
@@ -214,7 +221,7 @@ export default function AddItemPage() {
               />
             </div>
 
-            {/* TOMBOL PENGIRIMAN DATA MUTASI */}
+            {/* TOMBOL PENGIRIMAN DATA */}
             <div className="pt-2">
               <button
                 type="submit"

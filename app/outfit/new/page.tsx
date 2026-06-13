@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -113,7 +114,7 @@ export default function CreateOutfitPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER SECTION */}
-        <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center">
+        <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase">
               Create <span className="text-[#F652A0] [text-shadow:2px_2px_0px_#000]">Outfit</span> ✨
@@ -121,6 +122,16 @@ export default function CreateOutfitPage() {
             <p className="text-xs font-bold text-gray-500 uppercase tracking-tight mt-1">
               Mix and match items to blueprint a brand new look
             </p>
+          </div>
+
+          {/* ACTION BUTTONS GROUP */}
+          <div className="w-full md:w-auto">
+            <Link
+              href="/outfit"
+              className="bg-white text-black font-black border-4 border-black px-5 py-3 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all block w-full md:inline-block text-center"
+            >
+              ⬅️ Back to Outfits
+            </Link>
           </div>
         </header>
 
