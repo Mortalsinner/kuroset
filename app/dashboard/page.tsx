@@ -18,15 +18,16 @@ type Item = {
 
 export default function DashboardPage() {
 
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("User");
   const [items, setItems] = useState<Item[]>([]);
+  const [outfitCount, setOutfitCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
 
 
   useEffect(() => {
 
-    getDashboardData();
+    loadDashboard();
 
   }, []);
 
@@ -34,7 +35,7 @@ export default function DashboardPage() {
 
 
 
-  const getDashboardData = async () => {
+  const loadDashboard = async () => {
 
     try {
 
@@ -43,6 +44,7 @@ export default function DashboardPage() {
         data:{
           user
         }
+
       } = await supabase.auth.getUser();
 
 
@@ -51,16 +53,24 @@ export default function DashboardPage() {
 
 
 
+
+
       const {
         data:profile
+
       } = await supabase
+
         .from("profiles")
+
         .select("username")
+
         .eq(
           "id_user",
           user.id
         )
+
         .single();
+
 
 
 
@@ -72,22 +82,32 @@ export default function DashboardPage() {
 
 
 
+
+
       const {
         data:itemData
+
       } = await supabase
+
         .from("items")
+
         .select("*")
+
         .eq(
           "id_user",
           user.id
         )
+
         .order(
           "created_at",
           {
             ascending:false
           }
         )
-        .limit(4);
+
+        .limit(6);
+
+
 
 
 
@@ -97,9 +117,43 @@ export default function DashboardPage() {
 
 
 
+
+
+
+
+      const {
+        count
+
+      } = await supabase
+
+        .from("outfits")
+
+        .select(
+          "*",
+          {
+            count:"exact",
+            head:true
+          }
+        )
+
+        .eq(
+          "id_user",
+          user.id
+        );
+
+
+
+
+      setOutfitCount(
+        count || 0
+      );
+
+
+
     } catch(error){
 
       console.error(error);
+
 
     } finally {
 
@@ -108,6 +162,7 @@ export default function DashboardPage() {
     }
 
   };
+
 
 
 
@@ -137,16 +192,20 @@ export default function DashboardPage() {
 
 
 
-
   if(loading){
 
     return (
 
-      <main className="p-6">
+      <div className="
+        min-h-screen
+        flex
+        items-center
+        justify-center
+      ">
 
         Loading...
 
-      </main>
+      </div>
 
     );
 
@@ -157,51 +216,119 @@ export default function DashboardPage() {
 
 
 
+
   return (
 
     <main className="
       min-h-screen
-      bg-gray-50
+      bg-base-200
       p-6
     ">
 
 
       <div className="
-        max-w-6xl
+        max-w-7xl
         mx-auto
       ">
 
 
 
-        {/* Welcome */}
+
+
+        {/* Hero */}
+
 
         <section className="
-          bg-black
-          text-white
+          hero
           rounded-3xl
-          p-8
+          bg-gradient-to-r
+          from-neutral
+          to-neutral-focus
+          text-white
           mb-8
         ">
 
 
-          <h1 className="
-            text-3xl
-            font-bold
+          <div className="
+            hero-content
+            w-full
+            justify-between
+            flex-col
+            md:flex-row
+            py-10
           ">
 
-            Welcome back, {username} 👋
-
-          </h1>
 
 
-          <p className="
-            text-gray-300
-            mt-3
-          ">
+            <div>
 
-            Organize your wardrobe and create your style.
 
-          </p>
+              <div className="
+                badge
+                badge-outline
+                mb-4
+              ">
+
+                Fashion Studio
+
+              </div>
+
+
+
+
+              <h1 className="
+                text-4xl
+                font-bold
+              ">
+
+                Welcome back,
+                <br />
+
+                {username} ✨
+
+              </h1>
+
+
+
+
+              <p className="
+                mt-3
+                text-gray-300
+              ">
+
+                Create your style,
+                organize your wardrobe,
+                and discover new looks.
+
+              </p>
+
+
+            </div>
+
+
+
+
+            <Link
+
+              href="/outfit/new"
+
+              className="
+                btn
+                btn-primary
+                mt-5
+                md:mt-0
+              "
+
+            >
+
+              Create Outfit
+
+            </Link>
+
+
+
+          </div>
+
 
 
         </section>
@@ -213,7 +340,133 @@ export default function DashboardPage() {
 
 
 
-        {/* Navigation */}
+
+        {/* Stats */}
+
+
+
+        <section className="
+          grid
+          md:grid-cols-2
+          gap-5
+          mb-8
+        ">
+
+
+          <div className="
+            card
+            bg-base-100
+            shadow
+          ">
+
+            <div className="card-body">
+
+
+              <div className="
+                stat
+              ">
+
+
+                <div className="stat-title">
+
+                  Wardrobe Items
+
+                </div>
+
+
+                <div className="
+                  stat-value
+                ">
+
+                  {items.length}
+
+                </div>
+
+
+                <div className="
+                  stat-desc
+                ">
+
+                  Clothes collected
+
+                </div>
+
+
+              </div>
+
+
+            </div>
+
+          </div>
+
+
+
+
+
+
+
+          <div className="
+            card
+            bg-base-100
+            shadow
+          ">
+
+
+            <div className="card-body">
+
+
+              <div className="stat">
+
+
+                <div className="stat-title">
+
+                  Created Outfits
+
+                </div>
+
+
+                <div className="
+                  stat-value
+                ">
+
+                  {outfitCount}
+
+                </div>
+
+
+                <div className="
+                  stat-desc
+                ">
+
+                  Your fashion combinations
+
+                </div>
+
+
+              </div>
+
+
+            </div>
+
+
+          </div>
+
+
+
+
+        </section>
+
+
+
+
+
+
+
+
+
+        {/* Menu */}
+
+
 
         <section className="
           grid
@@ -229,79 +482,36 @@ export default function DashboardPage() {
             href="/wardrobe"
 
             className="
-              bg-white
-              p-6
-              rounded-2xl
-              shadow-sm
-              hover:shadow-md
+              card
+              bg-base-100
+              shadow
+              hover:scale-[1.02]
               transition
             "
 
           >
 
 
-            <h2 className="
-              text-xl
-              font-bold
-            ">
-
-              👕 My Wardrobe
-
-            </h2>
+            <div className="card-body">
 
 
-            <p className="
-              text-gray-500
-              mt-2
-            ">
+              <h2 className="
+                card-title
+              ">
 
-              Manage your clothing items
+                👕 Wardrobe
 
-            </p>
-
-
-          </Link>
+              </h2>
 
 
+              <p>
+
+                Manage your clothing items
+
+              </p>
 
 
-
-
-
-          <Link
-
-            href="/outfit/new"
-
-            className="
-              bg-white
-              p-6
-              rounded-2xl
-              shadow-sm
-              hover:shadow-md
-              transition
-            "
-
-          >
-
-
-            <h2 className="
-              text-xl
-              font-bold
-            ">
-
-              ✨ Create Outfit
-
-            </h2>
-
-
-            <p className="
-              text-gray-500
-              mt-2
-            ">
-
-              Mix and match your clothes
-
-            </p>
+            </div>
 
 
           </Link>
@@ -317,38 +527,84 @@ export default function DashboardPage() {
             href="/outfit"
 
             className="
-              bg-white
-              p-6
-              rounded-2xl
-              shadow-sm
-              hover:shadow-md
+              card
+              bg-base-100
+              shadow
+              hover:scale-[1.02]
               transition
             "
 
           >
 
-
-            <h2 className="
-              text-xl
-              font-bold
-            ">
-
-              🌎 Explore Outfit
-
-            </h2>
+            <div className="card-body">
 
 
-            <p className="
-              text-gray-500
-              mt-2
-            ">
+              <h2 className="
+                card-title
+              ">
 
-              Discover other styles
+                ✨ Mix & Match
 
-            </p>
+              </h2>
+
+
+              <p>
+
+                Create your outfit style
+
+              </p>
+
+
+            </div>
 
 
           </Link>
+
+
+
+
+
+
+
+
+          <Link
+
+            href="/outfit"
+
+            className="
+              card
+              bg-base-100
+              shadow
+              hover:scale-[1.02]
+              transition
+            "
+
+          >
+
+            <div className="card-body">
+
+
+              <h2 className="
+                card-title
+              ">
+
+                🌎 Explore
+
+              </h2>
+
+
+              <p>
+
+                Discover other outfits
+
+              </p>
+
+
+            </div>
+
+
+          </Link>
+
 
 
 
@@ -362,7 +618,8 @@ export default function DashboardPage() {
 
 
 
-        {/* Recent Wardrobe */}
+        {/* Recent Items */}
+
 
 
         <section>
@@ -380,7 +637,7 @@ export default function DashboardPage() {
               font-bold
             ">
 
-              Recent Items
+              Latest Wardrobe
 
             </h2>
 
@@ -391,8 +648,8 @@ export default function DashboardPage() {
               href="/wardrobe"
 
               className="
-                text-sm
-                text-gray-500
+                btn
+                btn-sm
               "
 
             >
@@ -414,9 +671,11 @@ export default function DashboardPage() {
           <div className="
             grid
             grid-cols-2
-            md:grid-cols-4
+            md:grid-cols-3
+            lg:grid-cols-6
             gap-5
           ">
+
 
 
             {
@@ -428,19 +687,18 @@ export default function DashboardPage() {
                   key={item.id_item}
 
                   className="
-                    bg-white
-                    rounded-2xl
+                    card
+                    bg-base-100
+                    shadow
                     overflow-hidden
-                    shadow-sm
                   "
 
                 >
 
 
-
-                  <div className="
+                  <figure className="
                     relative
-                    h-48
+                    h-40
                   ">
 
 
@@ -463,17 +721,17 @@ export default function DashboardPage() {
                     />
 
 
-                  </div>
+                  </figure>
 
 
 
 
-
-                  <div className="p-4">
+                  <div className="card-body p-4">
 
 
                     <h3 className="
-                      font-semibold
+                      font-bold
+                      truncate
                     ">
 
                       {item.name}
@@ -481,14 +739,13 @@ export default function DashboardPage() {
                     </h3>
 
 
-                    <p className="
-                      text-sm
-                      text-gray-500
+                    <div className="
+                      badge
                     ">
 
                       {item.category}
 
-                    </p>
+                    </div>
 
 
                   </div>
@@ -501,11 +758,14 @@ export default function DashboardPage() {
             }
 
 
+
           </div>
 
 
 
         </section>
+
+
 
 
 
