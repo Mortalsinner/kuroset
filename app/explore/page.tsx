@@ -13,7 +13,7 @@ type Item = {
 };
 
 type OutfitItem = {
-  items: Item;
+  items: Item | null; 
 };
 
 type UserProfile = {
@@ -43,8 +43,9 @@ export default function ExplorePage() {
   // State Filter & Sorting
   const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
   const [timeRange, setTimeRange] = useState<"all" | "today" | "week" | "month">("all");
+  
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  // State untuk mengontrol buka/tutup Custom Dropdown
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
 
@@ -53,18 +54,11 @@ export default function ExplorePage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  // Label Mapping untuk UI Dropdown kustom
-  const sortLabels = {
-    newest: "Newest First ✨",
-    oldest: "Oldest First ⏳",
-  };
-
-  const timeLabels = {
-    all: "All Time 🌍",
-    today: "Today ⏰",
-    week: "This Week 📅",
-    month: "This Month 🌙",
-  };
+  const sortLabels = { newest: "Newest First ✨", oldest: "Oldest First ⏳" };
+  const timeLabels = { all: "All Time 🌍", today: "Today ⏰", week: "This Week 📅", month: "This Month 🌙" };
+  
+  // Tambah "Accessories" di dalam daftar array categories 🎩🎒
+  const categories = ["All", "TOP", "BOTTOM", "OUTER", "SHOE", "ACCESSORIES"];
 
   useEffect(() => {
     loadExploreOutfits();
@@ -73,9 +67,8 @@ export default function ExplorePage() {
   const loadExploreOutfits = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
 
-      let query = supabase
+      const { data, error } = await supabase
         .from("outfits")
         .select(`
           id_outfit,
@@ -99,15 +92,12 @@ export default function ExplorePage() {
             )
           )
         `)
-        .eq("is_public", true);
-
-      if (user) {
-        query = query.neq("id_user", user.id);
-      }
-
-      const { data, error } = await query.order("created_at", { ascending: false });
+        .eq("is_public", true)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
+
+      console.log("Data Explore:", data);
 
       const formattedData = (data || []).map((item: any) => ({
         id_outfit: item.id_outfit,
@@ -131,12 +121,15 @@ export default function ExplorePage() {
     }
   };
 
-  const getItemImageUrl = (path: string) => {
+  const getItemImageUrl = (path: string | undefined | null) => {
     if (!path) return "";
-    return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
+    if (path.startsWith("http")) return path;
+    
+    const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+    const { data } = supabase.storage.from("wardrobe-images").getPublicUrl(cleanPath);
+    return data.publicUrl;
   };
 
-  // Komputasi pemrosesan data (Search + Time Filter + Sorting)
   const processedOutfits = outfits
     .filter((outfit) => {
       const matchName = outfit.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -144,17 +137,20 @@ export default function ExplorePage() {
       return matchName || matchUsername;
     })
     .filter((outfit) => {
+      if (selectedCategory === "All") return true;
+      return outfit.outfit_items?.some(
+        (oi) => oi.items?.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    })
+    .filter((outfit) => {
       if (timeRange === "all") return true;
-
       const outfitTime = new Date(outfit.created_at).getTime();
       const now = Date.now();
       const diffInMs = now - outfitTime;
-
       const ONE_DAY_MS = 24 * 60 * 60 * 1000;
       if (timeRange === "today") return diffInMs <= ONE_DAY_MS;
       if (timeRange === "week") return diffInMs <= ONE_DAY_MS * 7;
       if (timeRange === "month") return diffInMs <= ONE_DAY_MS * 30;
-      
       return true;
     })
     .sort((a, b) => {
@@ -173,13 +169,7 @@ export default function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-[#52D1F6] p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white">
-      {alert && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert(null)}
-        />
-      )}
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
 
       <div className="max-w-7xl mx-auto space-y-8">
         
@@ -201,7 +191,6 @@ export default function ExplorePage() {
                 Browse, inspect, and get inspired by fashion combinations compiled by other stylistic minds in the club.
               </p>
             </div>
-            
             <button
               onClick={() => router.push("/dashboard")}
               className="bg-black text-white font-black border-4 border-black px-6 py-3 text-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
@@ -211,10 +200,33 @@ export default function ExplorePage() {
           </div>
         </header>
 
-        {/* CUSTOM NEO-BRUTALISM CONTROL PANEL */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full relative z-30">
-          
-          {/* Input Search Bar */}
+        {/* UI FILTER KATEGORI */}
+        <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-20 flex flex-wrap items-center gap-3">
+          <span className="font-black text-xs uppercase tracking-wider text-gray-500 mr-2 block w-full sm:w-auto">
+            Filter Category:
+          </span>
+          <div className="flex flex-wrap gap-2.5">
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all
+                    ${isActive 
+                      ? "bg-black text-white shadow-none translate-x-[2px] translate-y-[2px]" 
+                      : "bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#D5E04D] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* CONTROLS (Search, Sort, Time) */}
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full relative z-10">
           <div className="md:col-span-6 bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 h-[56px]">
             <span className="text-xl">🔍</span>
             <input
@@ -226,86 +238,40 @@ export default function ExplorePage() {
             />
           </div>
 
-          {/* Custom Dropdown: SORT SYSTEM */}
+          {/* Sort Dropdown */}
           <div className="md:col-span-3 relative">
             <button
-              onClick={() => {
-                setIsSortDropdownOpen(!isSortDropdownOpen);
-                setIsTimeDropdownOpen(false); // Tutup dropdown lainnya
-              }}
-              className="w-full bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between font-black text-sm uppercase transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-[56px]"
+              onClick={() => { setIsSortDropdownOpen(!isSortDropdownOpen); setIsTimeDropdownOpen(false); }}
+              className="w-full bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between font-black text-sm uppercase h-[56px]"
             >
-              <div className="flex items-center gap-1.5">
-                <span className="text-gray-500 font-bold text-xs">Sort:</span>
-                <span>{sortLabels[sortBy]}</span>
-              </div>
-              <span className={`transform transition-transform duration-200 text-xs ${isSortDropdownOpen ? "rotate-180" : ""}`}>
-                ▼
-              </span>
+              <div className="flex items-center gap-1.5"><span className="text-gray-500 font-bold text-xs">Sort:</span><span>{sortLabels[sortBy]}</span></div>
+              <span className={`transform transition-transform text-xs ${isSortDropdownOpen ? "rotate-180" : ""}`}>▼</span>
             </button>
-
-            {/* Menu Dropdown List */}
             {isSortDropdownOpen && (
-              <div className="absolute top-[64px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col z-50 animate-in fade-in slide-in-from-top-2 duration-100">
-                <button
-                  onClick={() => {
-                    setSortBy("newest");
-                    setIsSortDropdownOpen(false);
-                  }}
-                  className={`w-full text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white transition-colors ${sortBy === "newest" ? "bg-gray-100" : ""}`}
-                >
-                  Newest First ✨
-                </button>
-                <button
-                  onClick={() => {
-                    setSortBy("oldest");
-                    setIsSortDropdownOpen(false);
-                  }}
-                  className={`w-full text-left p-3 font-black text-xs uppercase hover:bg-[#F652A0] hover:text-white transition-colors ${sortBy === "oldest" ? "bg-gray-100" : ""}`}
-                >
-                  Oldest First ⏳
-                </button>
+              <div className="absolute top-[64px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
+                <button onClick={() => { setSortBy("newest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white">Newest First ✨</button>
+                <button onClick={() => { setSortBy("oldest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase hover:bg-[#F652A0] hover:text-white">Oldest First ⏳</button>
               </div>
             )}
           </div>
 
-          {/* Custom Dropdown: TIME RANGE */}
+          {/* Time Dropdown */}
           <div className="md:col-span-3 relative">
             <button
-              onClick={() => {
-                setIsTimeDropdownOpen(!isTimeDropdownOpen);
-                setIsSortDropdownOpen(false); // Tutup dropdown lainnya
-              }}
-              className="w-full bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between font-black text-sm uppercase transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-[56px]"
+              onClick={() => { setIsTimeDropdownOpen(!isTimeDropdownOpen); setIsSortDropdownOpen(false); }}
+              className="w-full bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between font-black text-sm uppercase h-[56px]"
             >
-              <div className="flex items-center gap-1.5">
-                <span className="text-gray-500 font-bold text-xs">Time:</span>
-                <span>{timeLabels[timeRange]}</span>
-              </div>
-              <span className={`transform transition-transform duration-200 text-xs ${isTimeDropdownOpen ? "rotate-180" : ""}`}>
-                ▼
-              </span>
+              <div className="flex items-center gap-1.5"><span className="text-gray-500 font-bold text-xs">Time:</span><span>{timeLabels[timeRange]}</span></div>
+              <span className={`transform transition-transform text-xs ${isTimeDropdownOpen ? "rotate-180" : ""}`}>▼</span>
             </button>
-
-            {/* Menu Dropdown List */}
             {isTimeDropdownOpen && (
-              <div className="absolute top-[64px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col z-50 animate-in fade-in slide-in-from-top-2 duration-100">
-                {(Object.keys(timeLabels) as Array<keyof typeof timeLabels>).map((key, idx, arr) => (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setTimeRange(key);
-                      setIsTimeDropdownOpen(false);
-                    }}
-                    className={`w-full text-left p-3 font-black text-xs uppercase hover:bg-[#F652A0] hover:text-white transition-colors ${idx !== arr.length - 1 ? "border-b-2 border-black" : ""} ${timeRange === key ? "bg-gray-100" : ""}`}
-                  >
-                    {timeLabels[key]}
-                  </button>
+              <div className="absolute top-[64px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
+                {(Object.keys(timeLabels) as Array<keyof typeof timeLabels>).map((key) => (
+                  <button key={key} onClick={() => { setTimeRange(key); setIsTimeDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white">{timeLabels[key]}</button>
                 ))}
               </div>
             )}
           </div>
-
         </section>
 
         {/* MAIN EXPLORE GRID */}
@@ -313,9 +279,7 @@ export default function ExplorePage() {
           <section className="bg-white border-4 border-dashed border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-10">
             <div className="text-5xl mb-4">🕶️</div>
             <h3 className="text-2xl font-black uppercase">No outfits found</h3>
-            <p className="font-bold text-gray-600 mt-2">
-              Try adjusting your keywords, sorting system, or time range selection!
-            </p>
+            <p className="font-bold text-gray-600 mt-2">Try adjusting your keywords, category, or time range selection!</p>
           </section>
         ) : (
           <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 relative z-10">
@@ -323,10 +287,7 @@ export default function ExplorePage() {
               const mainCoverPath = outfit.outfit_items?.[0]?.items?.image_url || "";
 
               return (
-                <div
-                  key={outfit.id_outfit}
-                  className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between group transform hover:-translate-y-1 transition-all"
-                >
+                <div key={outfit.id_outfit} className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between group transform hover:-translate-y-1 transition-all">
                   <div>
                     {/* COVER PREVIEW */}
                     <figure className="relative h-64 bg-gray-100 border-b-4 border-black overflow-hidden">
@@ -336,22 +297,33 @@ export default function ExplorePage() {
                           alt={outfit.name}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.png";
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center font-black text-xs text-gray-400 bg-gray-50 uppercase p-4 text-center">
-                          <span>Empty Outfit</span>
-                          <span className="text-lg mt-1">📦</span>
+                          <span>No Image Access</span>
+                          <span className="text-lg mt-1">🔒</span>
                         </div>
                       )}
                     </figure>
 
                     {/* CONTENT CARD */}
                     <div className="p-5 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="bg-[#D5E04D] border-2 border-black text-xs font-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase">
-                          @{outfit.users?.username || "stranger"}
+                      <div className="flex items-center justify-between gap-2">
+                        {/* Menampilkan Username */}
+                        <div 
+                          className="bg-[#D5E04D] border-2 border-black text-xs font-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase select-none"
+                          title={outfit.users?.username ? `@${outfit.users.username}` : "stranger"}
+                        >
+                          @{outfit.users?.username 
+                            ? outfit.users.username.length > 12 
+                              ? `${outfit.users.username.substring(0, 12)}...` 
+                              : outfit.users.username 
+                            : "stranger"}
                         </div>
-                        <span className="text-[10px] font-bold text-gray-500 uppercase">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase whitespace-nowrap">
                           {new Date(outfit.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                         </span>
                       </div>
@@ -371,7 +343,7 @@ export default function ExplorePage() {
                             Items Included ({outfit.outfit_items.length}):
                           </span>
                           <div className="flex flex-wrap gap-1.5">
-                            {outfit.outfit_items.map((oi, idx) => oi.items && (
+                            {outfit.outfit_items.map((oi, idx) => oi.items && oi.items.image_url ? (
                               <div
                                 key={idx}
                                 className="w-8 h-8 rounded-full border-2 border-black overflow-hidden relative bg-gray-50 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
@@ -384,7 +356,7 @@ export default function ExplorePage() {
                                   className="object-cover"
                                 />
                               </div>
-                            ))}
+                            ) : null)}
                           </div>
                         </div>
                       )}
@@ -405,7 +377,6 @@ export default function ExplorePage() {
             })}
           </section>
         )}
-
       </div>
     </main>
   );

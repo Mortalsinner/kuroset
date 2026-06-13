@@ -171,12 +171,12 @@ export default function AddItemPage() {
                   className="w-full bg-white border-4 border-black p-3 font-bold text-black appearance-none focus:outline-none focus:bg-[#52D1F6] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm cursor-pointer"
                   required
                 >
-                  <option value="" disabled>Pilih Kategori</option>
-                  <option value="Atasan">Atasan</option>
-                  <option value="Bawahan">Bawahan</option>
-                  <option value="Outer">Outer</option>
-                  <option value="Alas Kaki">Alas Kaki</option>
-                  <option value="Aksesoris">Aksesoris</option>
+                  <option value="" disabled>Select Category</option>
+                  <option value="TOP">Top</option>
+                  <option value="BOTTOM">Bottom</option>
+                  <option value="OUTER">Outer</option>
+                  <option value="SHOE">Footwear</option>
+                  <option value="ACCESSORIES">Accessories</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 font-black border-l-4 border-black bg-black text-white">
                   ▼

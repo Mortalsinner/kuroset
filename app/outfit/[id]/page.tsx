@@ -12,6 +12,7 @@ type Item = {
   name: string;
   category: string;
   image_url: string;
+  shop_url?: string | null; // Ditambahkan properti opsional untuk link pembelian
 };
 
 type Outfit = {
@@ -26,7 +27,7 @@ export default function OutfitDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [outfit, setOutfit] = useState<Outfit|null>(null);
+  const [outfit, setOutfit] = useState<Outfit | null>(null);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{
     message: string;
@@ -53,7 +54,8 @@ export default function OutfitDetailPage() {
               id_item,
               name,
               category,
-              image_url
+              image_url,
+              shop_url
             )
           )
         `)
@@ -91,7 +93,10 @@ export default function OutfitDetailPage() {
   };
 
   const getImageUrl = (path: string) => {
-    return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    const { data } = supabase.storage.from("wardrobe-images").getPublicUrl(path);
+    return data.publicUrl;
   };
 
   if (loading) {
@@ -221,18 +226,18 @@ export default function OutfitDetailPage() {
             {outfit.items.map((item) => (
               <div 
                 key={`detail-${item.id_item}`}
-                className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col"
+                className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between"
               >
-                <figure className="relative h-44 bg-gray-100 border-b-2 border-black overflow-hidden">
-                  <Image
-                    src={getImageUrl(item.image_url)}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                  />
-                </figure>
-                <div className="p-4 space-y-2 flex-grow flex flex-col justify-between items-start">
-                  <div className="space-y-1 w-full">
+                <div>
+                  <figure className="relative h-44 bg-gray-100 border-b-2 border-black overflow-hidden">
+                    <Image
+                      src={getImageUrl(item.image_url)}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </figure>
+                  <div className="p-4 space-y-2">
                     <span className="bg-[#52D1F6] border border-black text-[9px] font-black px-2 py-0.5 uppercase tracking-wide inline-block">
                       {item.category}
                     </span>
@@ -240,10 +245,31 @@ export default function OutfitDetailPage() {
                       {item.name}
                     </h3>
                   </div>
-                  
+                </div>
+                
+                <div className="p-4 pt-0 space-y-3 w-full">
+                  {/* TOMBOL LINK PEMBELIAN */}
+                  {item.shop_url ? (
+                    <a
+                      href={item.shop_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full block text-center bg-[#D5E04D] hover:bg-black hover:text-white text-black font-black py-2 text-xs border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
+                    >
+                      Buy Item 🛒
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="w-full block text-center bg-gray-100 text-gray-400 font-bold py-2 text-xs border-2 border-gray-300 uppercase cursor-not-allowed"
+                    >
+                      No Store Link 🚫
+                    </button>
+                  )}
+
                   <Link
                     href={`/wardrobe?search=${encodeURIComponent(item.name)}`}
-                    className="text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-black transition-colors underline decoration-2 decoration-[#F652A0] mt-2 block"
+                    className="text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-black transition-colors underline decoration-2 decoration-[#F652A0] block text-center"
                   >
                     View in Wardrobe 🔍
                   </Link>

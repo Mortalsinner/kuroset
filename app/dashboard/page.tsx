@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [outfitCount, setOutfitCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<any>(null);
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -77,6 +78,7 @@ export default function DashboardPage() {
 
   const logout = async () => {
     await supabase.auth.signOut();
+    setConfirmLogoutOpen(false);
     setAlert({
       message: "Logout berhasil",
       type: "success",
@@ -85,6 +87,14 @@ export default function DashboardPage() {
     setTimeout(() => {
       router.push("/login");
     }, 1000);
+  };
+
+  const openLogoutConfirmation = () => {
+    setConfirmLogoutOpen(true);
+  };
+
+  const closeLogoutConfirmation = () => {
+    setConfirmLogoutOpen(false);
   };
 
   const getImageUrl = (path: string) => {
@@ -115,7 +125,32 @@ export default function DashboardPage() {
       {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
 
       <div className="max-w-7xl mx-auto space-y-10">
-        
+        {confirmLogoutOpen && (
+          <div className="modal modal-open" id="logout_modal">
+            <div className="modal-box bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none">
+              <h3 className="font-black text-2xl uppercase">Logout</h3>
+              <p className="py-4 font-bold">Are you sure you want to sign out?</p>
+              <div className="modal-action">
+                <a
+                  href="#"
+                  className="btn bg-white border-2 border-black text-black rounded-none"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    closeLogoutConfirmation();
+                  }}
+                >
+                  Cancel
+                </a>
+                <button
+                  onClick={logout}
+                  className="btn bg-[#F652A0] border-2 border-black font-black text-white hover:bg-[#d6478a] rounded-none"
+                >
+                  Yes, Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* HERO SECTION - Tampilan Neo Brutalism */}
         <section className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] mb-8 p-8 md:p-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
@@ -159,7 +194,7 @@ export default function DashboardPage() {
                 EDIT PROFILE
               </Link>
               <button 
-                onClick={logout} 
+                onClick={openLogoutConfirmation} 
                 className="bg-[#F652A0] text-black font-black border-4 border-black px-6 py-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all"
               >
                 LOGOUT
