@@ -1,113 +1,53 @@
 "use client";
 
-import { useEffect,useState } from "react";
-
-type AlertType="success"|"error"|"warning"|"info";
-
-type AlertProps={
+type Props={
   message:string;
-  type?:AlertType;
-  duration?:number;
+  type:"success"|"error"|"info";
   onClose:()=>void;
 };
 
 
 export default function Alert({
   message,
-  type="info",
-  duration=3000,
+  type,
   onClose
-}:AlertProps){
-
-
-  useEffect(()=>{
-
-    const timer=setTimeout(()=>{
-
-      onClose();
-
-    },duration);
-
-
-    return()=>clearTimeout(timer);
-
-
-  },[]);
-
-
+}:Props){
 
   return(
 
-    <div className="
+    <div className={`
+      alert
+      ${
+        type==="success"
+        ?
+        "alert-success"
+        :
+        type==="error"
+        ?
+        "alert-error"
+        :
+        "alert-info"
+      }
       fixed
       top-5
       right-5
+      w-auto
       z-50
-      w-96
-    ">
+      shadow-lg
+    `}>
 
+      <span>
+        {message}
+      </span>
 
-      <div className={`
-        alert
-        shadow-lg
-        ${
-          type==="success"
-          &&
-          "alert-success"
-        }
-
-        ${
-          type==="error"
-          &&
-          "alert-error"
-        }
-
-        ${
-          type==="warning"
-          &&
-          "alert-warning"
-        }
-
-        ${
-          type==="info"
-          &&
-          "alert-info"
-        }
-
-      `}>
-
-
-        <span>
-
-          {message}
-
-        </span>
-
-
-
-        <button
-
-          onClick={onClose}
-
-          className="
-            btn
-            btn-sm
-            btn-ghost
-          "
-
-        >
-
-          ✕
-
-        </button>
-
-
-
-      </div>
-
+      <button
+        onClick={onClose}
+        className="btn btn-sm btn-ghost"
+      >
+        ✕
+      </button>
 
     </div>
-
 
   );
 

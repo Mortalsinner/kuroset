@@ -1,45 +1,83 @@
 "use client";
 
-import { useEffect,useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  useEffect,
+  useState
+} from "react";
+
 import Image from "next/image";
 
-import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+
+import {
+  useRouter
+} from "next/navigation";
+
+import {
+  supabase
+} from "@/lib/supabase";
+
 import Alert from "@/components/Alert";
 
 
+
 type Item={
+
   id_item:string;
+
   name:string;
+
   category:string;
+
   image_url:string;
+
 };
+
+
 
 
 
 export default function DashboardPage(){
 
+
   const router=useRouter();
 
+
+
   const [username,setUsername]=useState("User");
+
+
+  const [profile,setProfile]=useState<any>(null);
+
+
+
   const [items,setItems]=useState<Item[]>([]);
+
+
+
   const [outfitCount,setOutfitCount]=useState(0);
+
+
 
   const [loading,setLoading]=useState(true);
 
 
-  const [alert,setAlert]=useState<{
-    message:string;
-    type:"success"|"error"|"info";
-  }|null>(null);
+
+  const [alert,setAlert]=useState<any>(null);
+
+
+
+
+
 
 
 
 
   useEffect(()=>{
 
+
     loadDashboard();
+
 
   },[]);
 
@@ -47,12 +85,18 @@ export default function DashboardPage(){
 
 
 
+
+
+
+
   const loadDashboard=async()=>{
+
 
     try{
 
 
       const {
+
         data:{
           user
         }
@@ -61,26 +105,27 @@ export default function DashboardPage(){
 
 
 
-      if(!user){
 
-        router.push("/login");
+
+      if(!user)
 
         return;
 
-      }
+
 
 
 
 
 
       const {
-        data:profile
+
+        data:profileData
 
       }=await supabase
 
         .from("profiles")
 
-        .select("username")
+        .select("*")
 
         .eq(
           "id_user",
@@ -92,8 +137,17 @@ export default function DashboardPage(){
 
 
 
+
+
+
+      setProfile(profileData);
+
+
+
       setUsername(
-        profile?.username || "User"
+
+        profileData?.username || "User"
+
       );
 
 
@@ -101,7 +155,11 @@ export default function DashboardPage(){
 
 
 
+
+
+
       const {
+
         data:itemData
 
       }=await supabase
@@ -111,15 +169,23 @@ export default function DashboardPage(){
         .select("*")
 
         .eq(
+
           "id_user",
+
           user.id
+
         )
 
         .order(
+
           "created_at",
+
           {
+
             ascending:false
+
           }
+
         )
 
         .limit(6);
@@ -128,9 +194,15 @@ export default function DashboardPage(){
 
 
 
+
       setItems(
+
         itemData || []
+
       );
+
+
+
 
 
 
@@ -138,6 +210,7 @@ export default function DashboardPage(){
 
 
       const {
+
         count
 
       }=await supabase
@@ -145,69 +218,45 @@ export default function DashboardPage(){
         .from("outfits")
 
         .select(
+
           "*",
+
           {
+
             count:"exact",
+
             head:true
+
           }
+
         )
 
         .eq(
+
           "id_user",
+
           user.id
+
         );
 
 
 
 
 
+
       setOutfitCount(
+
         count || 0
+
       );
 
 
 
 
-    }catch(error){
 
-      console.error(error);
-
-
-      setAlert({
-
-        message:"Gagal memuat dashboard",
-
-        type:"error"
-
-      });
+    }catch(error:any){
 
 
-    }finally{
-
-      setLoading(false);
-
-    }
-
-
-  };
-
-
-
-
-
-
-  const handleLogout=async()=>{
-
-
-    const {
-      error
-
-    }=await supabase.auth.signOut();
-
-
-
-
-    if(error){
 
       setAlert({
 
@@ -218,10 +267,31 @@ export default function DashboardPage(){
       });
 
 
-      return;
+
+    }finally{
+
+
+      setLoading(false);
+
 
     }
 
+
+
+  };
+
+
+
+
+
+
+
+
+
+  const logout=async()=>{
+
+
+    await supabase.auth.signOut();
 
 
 
@@ -235,17 +305,19 @@ export default function DashboardPage(){
 
 
 
-
-
     setTimeout(()=>{
 
+
       router.push("/login");
+
 
     },1000);
 
 
 
   };
+
+
 
 
 
@@ -267,7 +339,48 @@ export default function DashboardPage(){
       .data.publicUrl;
 
 
+
   };
+
+
+
+
+
+
+
+
+
+  const getAvatar=()=>{
+
+
+    if(!profile?.avatar_url)
+
+      return null;
+
+
+
+    return supabase.storage
+
+      .from(
+        "profile-images"
+      )
+
+      .getPublicUrl(
+
+        profile.avatar_url
+
+      )
+
+      .data.publicUrl;
+
+
+
+  };
+
+
+
+
+
 
 
 
@@ -279,16 +392,20 @@ export default function DashboardPage(){
 
     return(
 
-      <div className="
+
+      <main className="
         min-h-screen
         flex
         items-center
         justify-center
       ">
 
-        Loading...
 
-      </div>
+        Loading dashboard...
+
+
+      </main>
+
 
     );
 
@@ -301,7 +418,10 @@ export default function DashboardPage(){
 
 
 
+
+
   return(
+
 
 
     <main className="
@@ -313,20 +433,24 @@ export default function DashboardPage(){
 
 
       {
-        alert && (
 
-          <Alert
 
-            message={alert.message}
+        alert &&
 
-            type={alert.type}
 
-            onClose={()=>setAlert(null)}
+        <Alert
 
-          />
+          {...alert}
 
-        )
+          onClose={()=>setAlert(null)}
+
+        />
+
+
       }
+
+
+
 
 
 
@@ -337,6 +461,10 @@ export default function DashboardPage(){
         max-w-7xl
         mx-auto
       ">
+
+
+
+
 
 
 
@@ -353,18 +481,122 @@ export default function DashboardPage(){
         ">
 
 
+
+
           <div className="
             hero-content
             w-full
-            justify-between
             flex-col
             md:flex-row
+            justify-between
             py-10
           ">
 
 
 
+
+
+
+
             <div>
+
+
+
+
+
+
+              <div className="
+                flex
+                items-center
+                gap-5
+                mb-5
+              ">
+
+
+
+
+                {
+
+                  getAvatar()
+
+                  &&
+
+
+                  <Image
+
+
+                    src={
+                      getAvatar()!
+                    }
+
+
+                    width={80}
+
+
+                    height={80}
+
+
+                    alt="avatar"
+
+
+                    className="
+                      rounded-full
+                      object-cover
+                      border-4
+                    "
+
+
+                  />
+
+
+                }
+
+
+
+
+
+
+
+
+                <div>
+
+
+
+                  <h2 className="
+                    text-2xl
+                    font-bold
+                  ">
+
+
+                    {profile?.full_name || username}
+
+
+                  </h2>
+
+
+
+                  <p>
+
+
+                    @{username}
+
+
+                  </p>
+
+
+
+                </div>
+
+
+
+
+              </div>
+
+
+
+
+
+
 
 
               <div className="
@@ -373,9 +605,16 @@ export default function DashboardPage(){
                 mb-4
               ">
 
+
                 Fashion Studio
 
+
               </div>
+
+
+
+
+
 
 
 
@@ -385,13 +624,19 @@ export default function DashboardPage(){
                 font-bold
               ">
 
+
                 Welcome back,
 
-                <br />
+                <br/>
 
                 {username} ✨
 
+
               </h1>
+
+
+
+
 
 
 
@@ -400,14 +645,29 @@ export default function DashboardPage(){
                 text-gray-300
               ">
 
-                Create your style,
-                organize your wardrobe,
-                and discover new looks.
+
+                {
+
+                  profile?.bio ||
+
+                  "Create your style, organize your wardrobe, and discover new looks."
+
+                }
+
 
               </p>
 
 
+
+
+
+
+
             </div>
+
+
+
+
 
 
 
@@ -422,16 +682,18 @@ export default function DashboardPage(){
 
               <Link
 
-                href="/outfit/new"
+                href="/profile"
 
                 className="
                   btn
-                  btn-primary
+                  btn-outline
+                  text-white
                 "
 
               >
 
-                Create Outfit
+                Edit Profile
+
 
               </Link>
 
@@ -441,7 +703,7 @@ export default function DashboardPage(){
 
               <button
 
-                onClick={handleLogout}
+                onClick={logout}
 
                 className="
                   btn
@@ -450,7 +712,9 @@ export default function DashboardPage(){
 
               >
 
+
                 Logout
+
 
               </button>
 
@@ -460,10 +724,23 @@ export default function DashboardPage(){
 
 
 
+
+
+
+
+
           </div>
 
 
+
+
+
+
         </section>
+
+
+
+
 
 
 
@@ -481,6 +758,9 @@ export default function DashboardPage(){
 
 
 
+
+
+
           <div className="
             card
             bg-base-100
@@ -493,23 +773,32 @@ export default function DashboardPage(){
 
               <div className="stat">
 
+
                 <div className="stat-title">
+
 
                   Wardrobe Items
 
+
                 </div>
+
 
 
                 <div className="stat-value">
 
+
                   {items.length}
+
 
                 </div>
 
 
+
                 <div className="stat-desc">
 
+
                   Clothes collected
+
 
                 </div>
 
@@ -521,6 +810,8 @@ export default function DashboardPage(){
 
 
           </div>
+
+
 
 
 
@@ -543,21 +834,31 @@ export default function DashboardPage(){
 
                 <div className="stat-title">
 
+
                   Created Outfits
 
+
                 </div>
+
+
 
 
                 <div className="stat-value">
 
+
                   {outfitCount}
+
 
                 </div>
 
 
+
+
                 <div className="stat-desc">
 
-                  Your fashion combinations
+
+                  Fashion combinations
+
 
                 </div>
 
@@ -569,10 +870,13 @@ export default function DashboardPage(){
 
 
           </div>
+
+
 
 
 
         </section>
+
 
 
 
@@ -587,6 +891,11 @@ export default function DashboardPage(){
           gap-5
           mb-10
         ">
+
+
+
+
+
 
 
           <Link
@@ -605,17 +914,22 @@ export default function DashboardPage(){
 
             <div className="card-body">
 
+
               <h2 className="card-title">
+
 
                 👕 Wardrobe
 
+
               </h2>
 
 
               <p>
+
 
                 Manage your clothing items
 
+
               </p>
 
 
@@ -623,6 +937,9 @@ export default function DashboardPage(){
 
 
           </Link>
+
+
+
 
 
 
@@ -636,32 +953,42 @@ export default function DashboardPage(){
               card
               bg-base-100
               shadow
-              hover:scale-[1.02]
-              transition
             "
 
           >
 
+
             <div className="card-body">
 
+
               <h2 className="card-title">
+
 
                 ✨ Mix & Match
 
+
               </h2>
+
 
 
               <p>
 
+
                 Create your outfit style
 
+
               </p>
+
 
 
             </div>
 
 
+
           </Link>
+
+
+
 
 
 
@@ -675,8 +1002,6 @@ export default function DashboardPage(){
               card
               bg-base-100
               shadow
-              hover:scale-[1.02]
-              transition
             "
 
           >
@@ -686,22 +1011,32 @@ export default function DashboardPage(){
 
               <h2 className="card-title">
 
+
                 🌎 Explore
+
 
               </h2>
 
 
               <p>
 
-                Discover other outfits
+
+                Discover outfit inspiration
+
 
               </p>
+
 
 
             </div>
 
 
           </Link>
+
+
+
+
+
 
 
         </section>
@@ -713,7 +1048,9 @@ export default function DashboardPage(){
 
 
 
+
         <section>
+
 
 
           <div className="
@@ -723,12 +1060,15 @@ export default function DashboardPage(){
           ">
 
 
+
             <h2 className="
               text-2xl
               font-bold
             ">
 
+
               Latest Wardrobe
+
 
             </h2>
 
@@ -748,10 +1088,16 @@ export default function DashboardPage(){
 
               View All
 
+
             </Link>
 
 
+
           </div>
+
+
+
+
 
 
 
@@ -766,8 +1112,12 @@ export default function DashboardPage(){
           ">
 
 
+
             {
+
+
               items.map(item=>(
+
 
 
                 <div
@@ -784,13 +1134,16 @@ export default function DashboardPage(){
                 >
 
 
+
                   <figure className="
                     relative
                     h-40
                   ">
 
 
+
                     <Image
+
 
                       src={
                         getImageUrl(
@@ -798,22 +1151,35 @@ export default function DashboardPage(){
                         )
                       }
 
+
                       alt={item.name}
 
+
                       fill
+
 
                       className="
                         object-cover
                       "
 
+
                     />
+
 
 
                   </figure>
 
 
 
-                  <div className="card-body p-4">
+
+
+
+
+                  <div className="
+                    card-body
+                    p-4
+                  ">
+
 
 
                     <h3 className="
@@ -821,30 +1187,51 @@ export default function DashboardPage(){
                       truncate
                     ">
 
+
                       {item.name}
+
 
                     </h3>
 
 
-                    <div className="badge">
+
+
+                    <div className="
+                      badge
+                    ">
+
 
                       {item.category}
 
+
                     </div>
+
 
 
                   </div>
 
 
+
+
+
                 </div>
 
 
+
               ))
+
+
+
             }
 
 
 
+
           </div>
+
+
+
+
 
 
         </section>
@@ -852,12 +1239,23 @@ export default function DashboardPage(){
 
 
 
+
+
+
+
       </div>
+
+
+
+
+
 
 
     </main>
 
 
+
   );
+
 
 }
