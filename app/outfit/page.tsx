@@ -4,21 +4,48 @@ import { useEffect,useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import Alert from "@/components/Alert";
+
 
 type Outfit={
+
   id_outfit:string;
+
   name:string;
+
   notes:string;
+
   is_public:boolean;
+
   items:any[];
+
 };
+
+
+
 
 
 export default function OutfitPage(){
 
 
+
   const [outfits,setOutfits]=useState<Outfit[]>([]);
+
   const [loading,setLoading]=useState(true);
+
+
+
+  const [deleteId,setDeleteId]=useState<string|null>(null);
+
+
+
+  const [alert,setAlert]=useState<{
+    message:string;
+    type:"success"|"error"|"info";
+  }|null>(null);
+
+
+
 
 
 
@@ -31,10 +58,16 @@ export default function OutfitPage(){
 
 
 
+
+
+
+
+
   const getOutfits=async()=>{
 
 
     try{
+
 
 
       const {
@@ -46,8 +79,12 @@ export default function OutfitPage(){
 
 
 
+
+
       if(!user)
         return;
+
+
 
 
 
@@ -98,6 +135,7 @@ export default function OutfitPage(){
 
 
 
+
       if(error)
         throw error;
 
@@ -106,21 +144,34 @@ export default function OutfitPage(){
 
 
 
+
       const formatted=data.map(
+
         (outfit:any)=>({
+
 
           id_outfit:outfit.id_outfit,
 
+
           name:outfit.name,
+
 
           notes:outfit.notes,
 
+
           is_public:outfit.is_public,
 
+
+
           items:
-          outfit.outfit_items.map(
-            (item:any)=>item.items
-          )
+
+          outfit.outfit_items?.map(
+
+            (item:any)=>
+            item.items
+
+          ) || []
+
 
         })
 
@@ -128,18 +179,39 @@ export default function OutfitPage(){
 
 
 
-      setOutfits(formatted);
+
+
+      setOutfits(
+        formatted
+      );
 
 
 
-    }catch(error){
+
+
+
+    }catch(error:any){
+
 
       console.error(error);
 
 
+
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
+
     }finally{
 
+
       setLoading(false);
+
 
     }
 
@@ -152,16 +224,12 @@ export default function OutfitPage(){
 
 
 
-  const deleteOutfit=async(id:string)=>{
 
 
-    const confirmDelete=
-    confirm(
-      "Apakah kamu yakin ingin menghapus outfit ini?"
-    );
+  const deleteOutfit=async()=>{
 
 
-    if(!confirmDelete)
+    if(!deleteId)
       return;
 
 
@@ -169,6 +237,8 @@ export default function OutfitPage(){
 
 
     try{
+
+
 
 
 
@@ -183,8 +253,9 @@ export default function OutfitPage(){
 
         .eq(
           "id_outfit",
-          id
+          deleteId
         );
+
 
 
 
@@ -192,6 +263,7 @@ export default function OutfitPage(){
 
       if(itemsError)
         throw itemsError;
+
 
 
 
@@ -210,8 +282,10 @@ export default function OutfitPage(){
 
         .eq(
           "id_outfit",
-          id
+          deleteId
         );
+
+
 
 
 
@@ -225,38 +299,70 @@ export default function OutfitPage(){
 
 
 
+
       setOutfits(
 
         outfits.filter(
-          outfit =>
-          outfit.id_outfit !== id
+
+          outfit=>
+
+          outfit.id_outfit!==deleteId
+
         )
 
       );
 
 
 
-      alert(
-        "Outfit berhasil dihapus"
-      );
+
+
+
+      setAlert({
+
+        message:"Outfit berhasil dihapus",
+
+        type:"success"
+
+      });
+
+
+
+
 
 
 
     }catch(error:any){
 
 
+
       console.error(error);
 
 
-      alert(
-        error.message
-      );
+
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
+
+
+    }finally{
+
+
+      setDeleteId(null);
 
 
     }
 
 
+
   };
+
+
 
 
 
@@ -286,10 +392,12 @@ export default function OutfitPage(){
 
 
 
+
   if(loading){
 
 
     return(
+
 
       <main className="
         min-h-screen
@@ -298,13 +406,20 @@ export default function OutfitPage(){
         items-center
       ">
 
+
         Loading...
+
 
       </main>
 
+
     );
 
+
   }
+
+
+
 
 
 
@@ -314,6 +429,7 @@ export default function OutfitPage(){
   return(
 
 
+
     <main className="
       min-h-screen
       bg-base-200
@@ -321,10 +437,37 @@ export default function OutfitPage(){
     ">
 
 
+
+      {
+        alert && (
+
+          <Alert
+
+            message={alert.message}
+
+            type={alert.type}
+
+            onClose={()=>setAlert(null)}
+
+          />
+
+        )
+      }
+
+
+
+
+
+
+
       <div className="
         max-w-6xl
         mx-auto
       ">
+
+
+
+
 
 
 
@@ -336,6 +479,7 @@ export default function OutfitPage(){
         ">
 
 
+
           <h1 className="
             text-4xl
             font-bold
@@ -343,7 +487,11 @@ export default function OutfitPage(){
 
             My Outfit ✨
 
+
           </h1>
+
+
+
 
 
 
@@ -360,7 +508,11 @@ export default function OutfitPage(){
 
             Create Outfit
 
+
           </Link>
+
+
+
 
 
         </div>
@@ -381,17 +533,23 @@ export default function OutfitPage(){
 
 
 
+
+
           {
+
 
             outfits.map(outfit=>(
 
 
 
+
               <div
+
 
                 key={
                   outfit.id_outfit
                 }
+
 
                 className="
                   card
@@ -399,7 +557,10 @@ export default function OutfitPage(){
                   shadow-xl
                 "
 
+
               >
+
+
 
 
 
@@ -411,55 +572,86 @@ export default function OutfitPage(){
                 ">
 
 
+
+
                   {
 
+
                     outfit.items
+
                     .slice(0,3)
+
                     .map((item:any)=>(
 
 
+
                       <div
+
 
                         key={
                           item.id_item
                         }
 
+
                         className="
                           relative
                         "
 
+
                       >
+
+
 
 
                         <Image
 
+
                           src={
+
                             getImageUrl(
+
                               item.image_url
+
                             )
+
                           }
+
 
                           alt="item"
 
+
                           fill
+
 
                           className="
                             object-cover
                           "
 
+
                         />
+
+
+
 
 
                       </div>
 
 
+
                     ))
+
+
 
                   }
 
 
 
+
                 </div>
+
+
+
+
 
 
 
@@ -471,13 +663,17 @@ export default function OutfitPage(){
 
 
 
+
                   <h2 className="
                     card-title
                   ">
 
+
                     {outfit.name}
 
+
                   </h2>
+
 
 
 
@@ -486,7 +682,9 @@ export default function OutfitPage(){
                     text-gray-500
                   ">
 
+
                     {outfit.notes}
+
 
                   </p>
 
@@ -494,39 +692,45 @@ export default function OutfitPage(){
 
 
 
-                  <div>
 
 
-                    {
-                      outfit.is_public
+                  {
 
-                      ?
-
-                      <div className="
-                        badge
-                        badge-success
-                      ">
-
-                        Public
-
-                      </div>
+                    outfit.is_public
 
 
-                      :
+                    ?
 
 
-                      <div className="
-                        badge
-                      ">
-
-                        Private
-
-                      </div>
-
-                    }
+                    <div className="
+                      badge
+                      badge-success
+                    ">
 
 
-                  </div>
+                      Public
+
+
+                    </div>
+
+
+
+                    :
+
+
+                    <div className="
+                      badge
+                    ">
+
+
+                      Private
+
+
+                    </div>
+
+
+                  }
+
 
 
 
@@ -543,42 +747,64 @@ export default function OutfitPage(){
 
 
 
+
+
+
                     <Link
+
 
                       href={
                         `/outfit/${outfit.id_outfit}`
                       }
+
 
                       className="
                         btn
                         btn-outline
                       "
 
+
                     >
+
 
                       View
 
+
                     </Link>
+
+
+
+
 
 
 
 
                     <Link
 
+
                       href={
+
                         `/outfit/${outfit.id_outfit}/edit`
+
                       }
+
 
                       className="
                         btn
                         btn-primary
                       "
 
+
                     >
+
 
                       Edit
 
+
                     </Link>
+
+
+
 
 
 
@@ -586,20 +812,27 @@ export default function OutfitPage(){
 
                     <button
 
-                      onClick={()=>deleteOutfit(
+
+                      onClick={()=>setDeleteId(
                         outfit.id_outfit
                       )}
+
 
                       className="
                         btn
                         btn-error
                       "
 
+
                     >
+
 
                       Delete
 
+
                     </button>
+
+
 
 
 
@@ -609,7 +842,11 @@ export default function OutfitPage(){
 
 
 
+
+
                 </div>
+
+
 
 
 
@@ -619,6 +856,8 @@ export default function OutfitPage(){
 
 
             ))
+
+
 
           }
 
@@ -633,6 +872,139 @@ export default function OutfitPage(){
 
 
       </div>
+
+
+
+
+
+
+
+
+
+      {
+        deleteId && (
+
+
+
+          <dialog className="
+            modal
+            modal-open
+          ">
+
+
+
+            <div className="
+              modal-box
+            ">
+
+
+
+
+              <h3 className="
+                font-bold
+                text-lg
+              ">
+
+
+                Delete Outfit?
+
+
+              </h3>
+
+
+
+
+
+              <p className="
+                py-4
+              ">
+
+
+                Apakah kamu yakin ingin menghapus outfit ini?
+
+
+              </p>
+
+
+
+
+
+
+
+              <div className="
+                modal-action
+              ">
+
+
+
+                <button
+
+
+                  onClick={()=>setDeleteId(null)}
+
+
+                  className="
+                    btn
+                  "
+
+
+                >
+
+
+                  Cancel
+
+
+                </button>
+
+
+
+
+
+
+
+                <button
+
+
+                  onClick={deleteOutfit}
+
+
+                  className="
+                    btn
+                    btn-error
+                  "
+
+
+                >
+
+
+                  Delete
+
+
+                </button>
+
+
+
+
+              </div>
+
+
+
+
+
+            </div>
+
+
+
+
+
+          </dialog>
+
+
+
+        )
+      }
+
+
 
 
 

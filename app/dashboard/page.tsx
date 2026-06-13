@@ -1,43 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect,useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
 import { supabase } from "@/lib/supabase";
+import Alert from "@/components/Alert";
 
 
-type Item = {
-  id_item: string;
-  name: string;
-  category: string;
-  image_url: string;
+type Item={
+  id_item:string;
+  name:string;
+  category:string;
+  image_url:string;
 };
 
 
 
-export default function DashboardPage() {
+export default function DashboardPage(){
 
-  const [username, setUsername] = useState("User");
-  const [items, setItems] = useState<Item[]>([]);
-  const [outfitCount, setOutfitCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const router=useRouter();
+
+  const [username,setUsername]=useState("User");
+  const [items,setItems]=useState<Item[]>([]);
+  const [outfitCount,setOutfitCount]=useState(0);
+
+  const [loading,setLoading]=useState(true);
+
+
+  const [alert,setAlert]=useState<{
+    message:string;
+    type:"success"|"error"|"info";
+  }|null>(null);
 
 
 
-  useEffect(() => {
+
+  useEffect(()=>{
 
     loadDashboard();
 
-  }, []);
+  },[]);
 
 
 
 
 
-  const loadDashboard = async () => {
+  const loadDashboard=async()=>{
 
-    try {
+    try{
 
 
       const {
@@ -45,11 +57,17 @@ export default function DashboardPage() {
           user
         }
 
-      } = await supabase.auth.getUser();
+      }=await supabase.auth.getUser();
 
 
 
-      if(!user) return;
+      if(!user){
+
+        router.push("/login");
+
+        return;
+
+      }
 
 
 
@@ -58,7 +76,7 @@ export default function DashboardPage() {
       const {
         data:profile
 
-      } = await supabase
+      }=await supabase
 
         .from("profiles")
 
@@ -83,11 +101,10 @@ export default function DashboardPage() {
 
 
 
-
       const {
         data:itemData
 
-      } = await supabase
+      }=await supabase
 
         .from("items")
 
@@ -120,11 +137,10 @@ export default function DashboardPage() {
 
 
 
-
       const {
         count
 
-      } = await supabase
+      }=await supabase
 
         .from("outfits")
 
@@ -144,22 +160,90 @@ export default function DashboardPage() {
 
 
 
+
       setOutfitCount(
         count || 0
       );
 
 
 
-    } catch(error){
+
+    }catch(error){
 
       console.error(error);
 
 
-    } finally {
+      setAlert({
+
+        message:"Gagal memuat dashboard",
+
+        type:"error"
+
+      });
+
+
+    }finally{
 
       setLoading(false);
 
     }
+
+
+  };
+
+
+
+
+
+
+  const handleLogout=async()=>{
+
+
+    const {
+      error
+
+    }=await supabase.auth.signOut();
+
+
+
+
+    if(error){
+
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
+      return;
+
+    }
+
+
+
+
+    setAlert({
+
+      message:"Logout berhasil",
+
+      type:"success"
+
+    });
+
+
+
+
+
+    setTimeout(()=>{
+
+      router.push("/login");
+
+    },1000);
+
+
 
   };
 
@@ -169,9 +253,7 @@ export default function DashboardPage() {
 
 
 
-  const getImageUrl = (
-    path:string
-  ) => {
+  const getImageUrl=(path:string)=>{
 
 
     return supabase.storage
@@ -194,7 +276,8 @@ export default function DashboardPage() {
 
   if(loading){
 
-    return (
+
+    return(
 
       <div className="
         min-h-screen
@@ -209,6 +292,7 @@ export default function DashboardPage() {
 
     );
 
+
   }
 
 
@@ -217,13 +301,36 @@ export default function DashboardPage() {
 
 
 
-  return (
+  return(
+
 
     <main className="
       min-h-screen
       bg-base-200
       p-6
     ">
+
+
+
+      {
+        alert && (
+
+          <Alert
+
+            message={alert.message}
+
+            type={alert.type}
+
+            onClose={()=>setAlert(null)}
+
+          />
+
+        )
+      }
+
+
+
+
 
 
       <div className="
@@ -233,9 +340,6 @@ export default function DashboardPage() {
 
 
 
-
-
-        {/* Hero */}
 
 
         <section className="
@@ -282,12 +386,12 @@ export default function DashboardPage() {
               ">
 
                 Welcome back,
+
                 <br />
 
                 {username} ✨
 
               </h1>
-
 
 
 
@@ -308,27 +412,55 @@ export default function DashboardPage() {
 
 
 
-            <Link
 
-              href="/outfit/new"
+            <div className="
+              flex
+              gap-3
+            ">
 
-              className="
-                btn
-                btn-primary
-                mt-5
-                md:mt-0
-              "
 
-            >
 
-              Create Outfit
+              <Link
 
-            </Link>
+                href="/outfit/new"
+
+                className="
+                  btn
+                  btn-primary
+                "
+
+              >
+
+                Create Outfit
+
+              </Link>
+
+
+
+
+
+              <button
+
+                onClick={handleLogout}
+
+                className="
+                  btn
+                  btn-error
+                "
+
+              >
+
+                Logout
+
+              </button>
+
+
+
+            </div>
 
 
 
           </div>
-
 
 
         </section>
@@ -340,11 +472,6 @@ export default function DashboardPage() {
 
 
 
-
-        {/* Stats */}
-
-
-
         <section className="
           grid
           md:grid-cols-2
@@ -353,19 +480,18 @@ export default function DashboardPage() {
         ">
 
 
+
           <div className="
             card
             bg-base-100
             shadow
           ">
 
+
             <div className="card-body">
 
 
-              <div className="
-                stat
-              ">
-
+              <div className="stat">
 
                 <div className="stat-title">
 
@@ -374,18 +500,14 @@ export default function DashboardPage() {
                 </div>
 
 
-                <div className="
-                  stat-value
-                ">
+                <div className="stat-value">
 
                   {items.length}
 
                 </div>
 
 
-                <div className="
-                  stat-desc
-                ">
+                <div className="stat-desc">
 
                   Clothes collected
 
@@ -396,6 +518,7 @@ export default function DashboardPage() {
 
 
             </div>
+
 
           </div>
 
@@ -425,18 +548,14 @@ export default function DashboardPage() {
                 </div>
 
 
-                <div className="
-                  stat-value
-                ">
+                <div className="stat-value">
 
                   {outfitCount}
 
                 </div>
 
 
-                <div className="
-                  stat-desc
-                ">
+                <div className="stat-desc">
 
                   Your fashion combinations
 
@@ -453,7 +572,6 @@ export default function DashboardPage() {
 
 
 
-
         </section>
 
 
@@ -463,18 +581,12 @@ export default function DashboardPage() {
 
 
 
-
-        {/* Menu */}
-
-
-
         <section className="
           grid
           md:grid-cols-3
           gap-5
           mb-10
         ">
-
 
 
           <Link
@@ -491,13 +603,9 @@ export default function DashboardPage() {
 
           >
 
-
             <div className="card-body">
 
-
-              <h2 className="
-                card-title
-              ">
+              <h2 className="card-title">
 
                 👕 Wardrobe
 
@@ -520,8 +628,6 @@ export default function DashboardPage() {
 
 
 
-
-
           <Link
 
             href="/outfit"
@@ -538,10 +644,7 @@ export default function DashboardPage() {
 
             <div className="card-body">
 
-
-              <h2 className="
-                card-title
-              ">
+              <h2 className="card-title">
 
                 ✨ Mix & Match
 
@@ -564,9 +667,6 @@ export default function DashboardPage() {
 
 
 
-
-
-
           <Link
 
             href="/outfit"
@@ -584,9 +684,7 @@ export default function DashboardPage() {
             <div className="card-body">
 
 
-              <h2 className="
-                card-title
-              ">
+              <h2 className="card-title">
 
                 🌎 Explore
 
@@ -606,19 +704,12 @@ export default function DashboardPage() {
           </Link>
 
 
-
-
         </section>
 
 
 
 
 
-
-
-
-
-        {/* Recent Items */}
 
 
 
@@ -640,6 +731,7 @@ export default function DashboardPage() {
               Latest Wardrobe
 
             </h2>
+
 
 
 
@@ -665,9 +757,6 @@ export default function DashboardPage() {
 
 
 
-
-
-
           <div className="
             grid
             grid-cols-2
@@ -675,7 +764,6 @@ export default function DashboardPage() {
             lg:grid-cols-6
             gap-5
           ">
-
 
 
             {
@@ -725,7 +813,6 @@ export default function DashboardPage() {
 
 
 
-
                   <div className="card-body p-4">
 
 
@@ -739,9 +826,7 @@ export default function DashboardPage() {
                     </h3>
 
 
-                    <div className="
-                      badge
-                    ">
+                    <div className="badge">
 
                       {item.category}
 
@@ -762,10 +847,7 @@ export default function DashboardPage() {
           </div>
 
 
-
         </section>
-
-
 
 
 
@@ -774,6 +856,7 @@ export default function DashboardPage() {
 
 
     </main>
+
 
   );
 

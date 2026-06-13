@@ -1,270 +1,1066 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
+
 import Image from "next/image";
+
 import Link from "next/link";
 
-import { supabase } from "@/lib/supabase";
+import {
+  supabase
+} from "@/lib/supabase";
 
-type Item = {
-  id_item: string;
-  name: string;
-  category: string;
-  color: string | null;
-  shop_url: string | null;
-  image_url: string;
-  notes: string | null;
+import Alert from "@/components/Alert";
+
+
+
+type Item={
+
+  id_item:string;
+
+  name:string;
+
+  category:string;
+
+  color:string|null;
+
+  shop_url:string|null;
+
+  image_url:string;
+
+  notes:string|null;
+
 };
 
-export default function WardrobePage() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+
+
+
+export default function WardrobePage(){
+
+
+  const [items,setItems]=useState<Item[]>([]);
+
+
+  const [loading,setLoading]=useState(true);
+
+
+
+  const [deleteItemData,setDeleteItemData]=useState<Item|null>(null);
+
+
+
+  const [alert,setAlert]=useState<{
+
+    message:string;
+
+    type:"success"|"error"|"info";
+
+  }|null>(null);
+
+
+
+
+
+
+
+
+  useEffect(()=>{
+
+
     getItems();
-  }, []);
 
-  const getItems = async () => {
-    try {
+
+  },[]);
+
+
+
+
+
+
+
+
+
+  const getItems=async()=>{
+
+
+    try{
+
+
+
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
 
-      if (!user) return;
+        data:{
+          user
+        }
 
-      const { data, error } = await supabase
+      }=await supabase.auth.getUser();
+
+
+
+
+
+      if(!user)
+        return;
+
+
+
+
+
+
+      const {
+
+        data,
+
+        error
+
+      }=await supabase
+
         .from("items")
+
         .select("*")
-        .eq("id_user", user.id)
-        .order("created_at", {
-          ascending: false,
-        });
 
-      if (error) throw error;
+        .eq(
+          "id_user",
+          user.id
+        )
 
-      setItems(data || []);
-    } catch (error) {
-      console.error("Get items error:", error);
-    } finally {
+        .order(
+
+          "created_at",
+
+          {
+
+            ascending:false
+
+          }
+
+        );
+
+
+
+
+
+
+      if(error)
+
+        throw error;
+
+
+
+
+
+
+
+      setItems(
+
+        data || []
+
+      );
+
+
+
+
+
+    }catch(error:any){
+
+
+
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
+
+    }finally{
+
+
       setLoading(false);
+
+
     }
+
+
   };
 
 
-  const deleteItem = async (item: Item) => {
-    const confirmDelete = confirm(
-      "Apakah kamu yakin ingin menghapus item ini?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-      const { error: storageError } = await supabase.storage
-        .from("wardrobe-images")
-        .remove([item.image_url]);
-
-      if (storageError) throw storageError;
 
 
-      const { error } = await supabase
+
+
+
+
+
+  const deleteItem=async()=>{
+
+
+    if(!deleteItemData)
+
+      return;
+
+
+
+
+
+
+    try{
+
+
+
+
+
+      const {
+
+        error:storageError
+
+      }=await supabase.storage
+
+        .from(
+          "wardrobe-images"
+        )
+
+        .remove([
+
+          deleteItemData.image_url
+
+        ]);
+
+
+
+
+
+
+      if(storageError)
+
+        throw storageError;
+
+
+
+
+
+
+
+
+
+      const {
+
+        error
+
+      }=await supabase
+
         .from("items")
+
         .delete()
-        .eq("id_item", item.id_item);
+
+        .eq(
+
+          "id_item",
+
+          deleteItemData.id_item
+
+        );
 
 
-      if (error) throw error;
 
-      alert("Item berhasil dihapus");
 
-      getItems();
 
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message);
+
+
+      if(error)
+
+        throw error;
+
+
+
+
+
+
+
+      setItems(
+
+        items.filter(
+
+          item=>
+
+          item.id_item !== deleteItemData.id_item
+
+        )
+
+      );
+
+
+
+
+
+
+
+      setAlert({
+
+        message:"Item berhasil dihapus",
+
+        type:"success"
+
+      });
+
+
+
+
+
+
+
+    }catch(error:any){
+
+
+
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
+
+    }finally{
+
+
+      setDeleteItemData(null);
+
+
     }
+
+
+
   };
 
 
-  const getImageUrl = (path: string) => {
+
+
+
+
+
+
+
+  const getImageUrl=(path:string)=>{
+
+
     return supabase.storage
-      .from("wardrobe-images")
+
+      .from(
+        "wardrobe-images"
+      )
+
       .getPublicUrl(path)
+
       .data.publicUrl;
+
+
   };
 
 
-  if (loading) {
-    return (
-      <main className="p-6">
+
+
+
+
+
+
+
+  if(loading){
+
+
+    return(
+
+      <main className="
+        min-h-screen
+        flex
+        justify-center
+        items-center
+      ">
+
         Loading wardrobe...
+
       </main>
+
+
     );
+
+
   }
 
 
-  return (
-    <main className="p-6">
-
-      <div className="flex justify-between items-center mb-8">
-
-        <h1 className="text-3xl font-bold">
-          My Wardrobe
-        </h1>
 
 
-        <Link
-          href="/wardrobe/new"
-          className="
-            bg-black 
-            text-white 
-            px-4 
-            py-2 
-            rounded-lg
-          "
-        >
-          Add Item
-        </Link>
 
-      </div>
+
+
+
+  return(
+
+
+
+    <main className="
+      min-h-screen
+      bg-base-200
+      p-6
+    ">
+
 
 
       {
-        items.length === 0 ? (
 
-          <div className="border rounded-xl p-8 text-center">
+        alert && (
 
-            <h2 className="text-xl font-semibold">
-              Wardrobe masih kosong
-            </h2>
 
-            <p className="text-gray-500 mt-2">
-              Tambahkan item pakaian pertama kamu
-            </p>
+          <Alert
+
+            message={
+              alert.message
+            }
+
+            type={
+              alert.type
+            }
+
+            onClose={()=>setAlert(null)}
+
+          />
+
+
+        )
+
+      }
+
+
+
+
+
+
+
+      <div className="
+        max-w-7xl
+        mx-auto
+      ">
+
+
+
+
+
+
+
+
+        <div className="
+          flex
+          justify-between
+          items-center
+          mb-8
+        ">
+
+
+
+
+          <h1 className="
+            text-4xl
+            font-bold
+          ">
+
+
+            My Wardrobe 👕
+
+
+          </h1>
+
+
+
+
+
+
+
+          <Link
+
+            href="/wardrobe/new"
+
+            className="
+              btn
+              btn-primary
+            "
+
+
+          >
+
+
+            Add Item
+
+
+          </Link>
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+        {
+
+          items.length===0
+
+
+          ?
+
+
+
+          <div className="
+            card
+            bg-base-100
+            shadow
+          ">
+
+
+            <div className="
+              card-body
+              text-center
+            ">
+
+
+
+              <h2 className="
+                text-xl
+                font-bold
+              ">
+
+
+                Wardrobe masih kosong
+
+
+              </h2>
+
+
+
+
+
+
+              <p>
+
+
+                Tambahkan item pakaian pertama kamu
+
+
+              </p>
+
+
+
+
+
+            </div>
+
+
 
           </div>
 
-        ) : (
+
+
+
+
+          :
+
+
+
+
 
           <div className="
-            grid 
-            grid-cols-1 
-            md:grid-cols-3 
-            lg:grid-cols-4 
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            lg:grid-cols-4
             gap-6
           ">
 
+
+
+
+
+
             {
-              items.map((item) => (
+
+
+              items.map(item=>(
+
+
+
 
                 <div
-                  key={item.id_item}
+
+                  key={
+                    item.id_item
+                  }
+
+
                   className="
-                    border 
-                    rounded-xl 
-                    overflow-hidden 
-                    shadow-sm
+                    card
+                    bg-base-100
+                    shadow-xl
+                    overflow-hidden
                   "
+
+
                 >
 
-                  <div className="relative h-64">
+
+
+
+
+
+                  <figure className="
+                    relative
+                    h-64
+                  ">
+
+
 
                     <Image
-                      src={getImageUrl(item.image_url)}
+
+
+                      src={
+
+                        getImageUrl(
+
+                          item.image_url
+
+                        )
+
+                      }
+
+
                       alt={item.name}
+
+
                       fill
-                      className="object-cover"
+
+
+                      className="
+                        object-cover
+                      "
+
+
                     />
 
-                  </div>
 
 
-                  <div className="p-4">
+                  </figure>
 
-                    <h2 className="text-lg font-bold">
+
+
+
+
+
+
+
+                  <div className="
+                    card-body
+                  ">
+
+
+
+
+                    <h2 className="
+                      card-title
+                    ">
+
+
                       {item.name}
+
+
                     </h2>
 
 
-                    <p className="text-gray-500">
+
+
+
+
+
+
+                    <div className="
+                      badge
+                    ">
+
+
                       {item.category}
-                    </p>
 
-
-                    {
-                      item.color && (
-                        <p className="text-sm mt-1">
-                          🎨 {item.color}
-                        </p>
-                      )
-                    }
-
-
-                    {
-                      item.shop_url && (
-                        <a
-                          href={item.shop_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="
-                            text-blue-600 
-                            text-sm 
-                            mt-2 
-                            inline-block
-                            hover:underline
-                          "
-                        >
-                          View Store
-                        </a>
-                      )
-                    }
-
-
-                    <div className="flex gap-3 mt-4">
-
-                      <Link
-                        href={`/wardrobe/edit/${item.id_item}`}
-                        className="
-                          bg-gray-200 
-                          text-black
-                          px-3 
-                          py-2 
-                          rounded-lg 
-                          text-sm
-                        "
-                      >
-                        Edit
-                      </Link>
-
-
-                      <button
-                        onClick={() => deleteItem(item)}
-                        className="
-                          bg-red-500 
-                          text-white 
-                          px-3 
-                          py-2 
-                          rounded-lg 
-                          text-sm
-                        "
-                      >
-                        Delete
-                      </button>
 
                     </div>
 
 
+
+
+
+
+
+
+
+                    {
+
+                      item.color && (
+
+
+                        <p className="
+                          text-sm
+                        ">
+
+
+                          🎨 {item.color}
+
+
+                        </p>
+
+
+                      )
+
+
+                    }
+
+
+
+
+
+
+
+
+
+                    {
+
+                      item.shop_url && (
+
+
+
+                        <a
+
+                          href={
+                            item.shop_url
+                          }
+
+
+                          target="_blank"
+
+
+                          rel="noopener noreferrer"
+
+
+                          className="
+                            link
+                            link-primary
+                            text-sm
+                          "
+
+
+                        >
+
+
+                          View Store
+
+
+                        </a>
+
+
+
+                      )
+
+
+                    }
+
+
+
+
+
+
+
+
+
+                    <div className="
+                      card-actions
+                      mt-4
+                      justify-end
+                    ">
+
+
+
+
+
+                      <Link
+
+
+                        href={
+
+                          `/wardrobe/edit/${item.id_item}`
+
+                        }
+
+
+                        className="
+                          btn
+                          btn-sm
+                          btn-outline
+                        "
+
+
+                      >
+
+
+                        Edit
+
+
+                      </Link>
+
+
+
+
+
+
+
+
+                      <button
+
+
+                        onClick={()=>setDeleteItemData(item)}
+
+
+                        className="
+                          btn
+                          btn-sm
+                          btn-error
+                        "
+
+
+                      >
+
+
+                        Delete
+
+
+                      </button>
+
+
+
+
+
+
+                    </div>
+
+
+
+
+
+
+
                   </div>
+
+
+
+
 
                 </div>
 
+
+
               ))
+
+
+
             }
+
+
+
+
 
           </div>
 
+
+
+        }
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      {
+
+        deleteItemData && (
+
+
+
+          <dialog className="
+            modal
+            modal-open
+          ">
+
+
+
+
+            <div className="
+              modal-box
+            ">
+
+
+
+              <h3 className="
+                font-bold
+                text-lg
+              ">
+
+
+                Delete Item?
+
+
+              </h3>
+
+
+
+
+
+
+              <p className="
+                py-4
+              ">
+
+
+                Apakah kamu yakin ingin menghapus:
+
+
+                <br/>
+
+
+                <b>
+
+                  {deleteItemData.name}
+
+                </b>
+
+
+                ?
+
+
+              </p>
+
+
+
+
+
+
+
+
+              <div className="
+                modal-action
+              ">
+
+
+
+                <button
+
+
+                  onClick={()=>setDeleteItemData(null)}
+
+
+                  className="
+                    btn
+                  "
+
+
+                >
+
+
+                  Cancel
+
+
+                </button>
+
+
+
+
+
+
+
+                <button
+
+
+                  onClick={deleteItem}
+
+
+                  className="
+                    btn
+                    btn-error
+                  "
+
+
+                >
+
+
+                  Delete
+
+
+                </button>
+
+
+
+
+
+
+              </div>
+
+
+
+
+
+
+            </div>
+
+
+
+
+          </dialog>
+
+
+
         )
+
+
       }
 
+
+
+
+
     </main>
+
+
   );
+
+
 }

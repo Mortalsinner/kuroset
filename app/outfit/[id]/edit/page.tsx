@@ -1,40 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect,useState } from "react";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams,useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import Alert from "@/components/Alert";
 
-type Item = {
+
+type Item={
   id_item:string;
   name:string;
   category:string;
   image_url:string;
 };
 
+
 export default function EditOutfitPage(){
 
-  const params = useParams();
-  const router = useRouter();
 
-  const id = params.id as string;
+  const params=useParams();
+  const router=useRouter();
 
-  const [items,setItems] = useState<Item[]>([]);
-  const [selectedItems,setSelectedItems] = useState<Item[]>([]);
+  const id=params.id as string;
 
-  const [name,setName] = useState("");
-  const [notes,setNotes] = useState("");
-  const [isPublic,setIsPublic] = useState(false);
 
-  const [loading,setLoading] = useState(true);
-  const [saving,setSaving] = useState(false);
+
+  const [items,setItems]=useState<Item[]>([]);
+  const [selectedItems,setSelectedItems]=useState<Item[]>([]);
+
+
+  const [name,setName]=useState("");
+  const [notes,setNotes]=useState("");
+  const [isPublic,setIsPublic]=useState(false);
+
+
+  const [loading,setLoading]=useState(true);
+  const [saving,setSaving]=useState(false);
+
+
+
+  const [alert,setAlert]=useState<{
+    message:string;
+    type:"success"|"error"|"info";
+  }|null>(null);
+
+
 
 
 
   useEffect(()=>{
 
     if(id){
+
       loadData();
+
     }
 
   },[id]);
@@ -42,7 +61,11 @@ export default function EditOutfitPage(){
 
 
 
-  const loadData = async()=>{
+
+
+
+  const loadData=async()=>{
+
 
     try{
 
@@ -50,24 +73,41 @@ export default function EditOutfitPage(){
       const {
         data:outfit,
         error:outfitError
-      } = await supabase
+
+      }=await supabase
+
         .from("outfits")
+
         .select(`
+
           id_outfit,
           name,
           notes,
           is_public,
+
           outfit_items(
+
             items(
+
               id_item,
               name,
               category,
               image_url
+
             )
+
           )
+
         `)
-        .eq("id_outfit",id)
+
+        .eq(
+          "id_outfit",
+          id
+        )
+
         .single();
+
+
 
 
 
@@ -76,8 +116,10 @@ export default function EditOutfitPage(){
 
 
 
+
       if(!outfit)
         return;
+
 
 
 
@@ -86,9 +128,11 @@ export default function EditOutfitPage(){
       );
 
 
+
       setNotes(
         outfit.notes || ""
       );
+
 
 
       setIsPublic(
@@ -97,10 +141,15 @@ export default function EditOutfitPage(){
 
 
 
+
+
       setSelectedItems(
 
         outfit.outfit_items?.map(
-          (item:any)=>item.items
+
+          (item:any)=>
+          item.items
+
         ) || []
 
       );
@@ -116,7 +165,8 @@ export default function EditOutfitPage(){
           user
         }
 
-      } = await supabase.auth.getUser();
+      }=await supabase.auth.getUser();
+
 
 
 
@@ -127,11 +177,12 @@ export default function EditOutfitPage(){
 
 
 
+
       const {
         data:itemData,
         error:itemError
 
-      } = await supabase
+      }=await supabase
 
         .from("items")
 
@@ -152,8 +203,11 @@ export default function EditOutfitPage(){
 
 
 
+
       if(itemError)
         throw itemError;
+
+
 
 
 
@@ -163,21 +217,38 @@ export default function EditOutfitPage(){
 
 
 
-    }catch(error){
+
+    }catch(error:any){
+
 
       console.error(
-        "Load outfit error:",
         error
       );
 
 
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
+
     }finally{
+
 
       setLoading(false);
 
+
     }
 
+
   };
+
+
+
 
 
 
@@ -187,12 +258,13 @@ export default function EditOutfitPage(){
   const toggleItem=(item:Item)=>{
 
 
-    const exists = selectedItems.some(
+    const exists=selectedItems.some(
 
-      selected =>
-      selected.id_item === item.id_item
+      selected=>
+      selected.id_item===item.id_item
 
     );
+
 
 
 
@@ -204,12 +276,13 @@ export default function EditOutfitPage(){
 
         selectedItems.filter(
 
-          selected =>
-          selected.id_item !== item.id_item
+          selected=>
+          selected.id_item!==item.id_item
 
         )
 
       );
+
 
 
     }else{
@@ -237,7 +310,7 @@ export default function EditOutfitPage(){
 
 
 
-  const updateOutfit = async()=>{
+  const updateOutfit=async()=>{
 
 
     try{
@@ -248,10 +321,11 @@ export default function EditOutfitPage(){
 
 
 
+
       const {
         error:updateError
 
-      } = await supabase
+      }=await supabase
 
         .from("outfits")
 
@@ -285,7 +359,7 @@ export default function EditOutfitPage(){
       const {
         error:deleteError
 
-      } = await supabase
+      }=await supabase
 
         .from("outfit_items")
 
@@ -309,7 +383,8 @@ export default function EditOutfitPage(){
 
 
 
-      const newItems = selectedItems.map(item=>({
+
+      const newItems=selectedItems.map(item=>({
 
         id_outfit:id,
 
@@ -322,17 +397,17 @@ export default function EditOutfitPage(){
 
 
 
-
       const {
         error:insertError
 
-      } = await supabase
+      }=await supabase
 
         .from("outfit_items")
 
         .insert(
           newItems
         );
+
 
 
 
@@ -345,27 +420,51 @@ export default function EditOutfitPage(){
 
 
 
-      alert(
-        "Outfit berhasil diupdate"
-      );
+
+
+      setAlert({
+
+        message:"Outfit berhasil diupdate",
+
+        type:"success"
+
+      });
 
 
 
-      router.push(
-        `/outfit/${id}`
-      );
+
+
+
+      setTimeout(()=>{
+
+        router.push(
+          `/outfit/${id}`
+        );
+
+
+      },1200);
+
+
 
 
 
     }catch(error:any){
 
 
+
       console.error(error);
 
 
-      alert(
-        error.message
-      );
+
+      setAlert({
+
+        message:error.message,
+
+        type:"error"
+
+      });
+
+
 
 
     }finally{
@@ -378,6 +477,8 @@ export default function EditOutfitPage(){
 
 
   };
+
+
 
 
 
@@ -400,6 +501,9 @@ export default function EditOutfitPage(){
 
 
   };
+
+
+
 
 
 
@@ -432,6 +536,7 @@ export default function EditOutfitPage(){
 
 
 
+
   return(
 
 
@@ -442,10 +547,36 @@ export default function EditOutfitPage(){
     ">
 
 
+
+
+      {
+        alert && (
+
+          <Alert
+
+            message={alert.message}
+
+            type={alert.type}
+
+            onClose={()=>setAlert(null)}
+
+          />
+
+        )
+      }
+
+
+
+
+
+
+
       <div className="
         max-w-6xl
         mx-auto
       ">
+
+
 
 
         <h1 className="
@@ -464,12 +595,14 @@ export default function EditOutfitPage(){
 
 
 
+
         <div className="
           card
           bg-base-100
           shadow
           p-6
         ">
+
 
 
 
@@ -523,12 +656,12 @@ export default function EditOutfitPage(){
 
 
 
+
           <label className="
             label
             cursor-pointer
             mt-4
           ">
-
 
 
             <span className="
@@ -538,7 +671,6 @@ export default function EditOutfitPage(){
               Public Outfit
 
             </span>
-
 
 
 
@@ -563,7 +695,6 @@ export default function EditOutfitPage(){
             />
 
 
-
           </label>
 
 
@@ -586,7 +717,6 @@ export default function EditOutfitPage(){
 
           >
 
-
             {
               saving
               ?
@@ -596,12 +726,12 @@ export default function EditOutfitPage(){
             }
 
 
-
           </button>
 
 
 
         </div>
+
 
 
 
@@ -627,7 +757,6 @@ export default function EditOutfitPage(){
 
 
 
-
         <div className="
           grid
           grid-cols-2
@@ -641,18 +770,18 @@ export default function EditOutfitPage(){
             items.map(item=>{
 
 
-              const selected =
-                selectedItems.some(
+              const selected=selectedItems.some(
 
-                  selected =>
-                  selected.id_item === item.id_item
+                selected=>
+                selected.id_item===item.id_item
 
-                );
+              );
+
+
 
 
 
               return(
-
 
 
                 <button
@@ -661,19 +790,13 @@ export default function EditOutfitPage(){
                     item.id_item
                   }
 
-                  onClick={()=>
-                    toggleItem(item)
-                  }
-
+                  onClick={()=>toggleItem(item)}
 
                   className={`
 
                     card
-
                     bg-base-100
-
                     shadow
-
                     overflow-hidden
 
                     ${
@@ -696,6 +819,7 @@ export default function EditOutfitPage(){
                   ">
 
 
+
                     <Image
 
                       src={
@@ -704,9 +828,7 @@ export default function EditOutfitPage(){
                         )
                       }
 
-                      alt={
-                        item.name
-                      }
+                      alt={item.name}
 
                       fill
 
@@ -729,6 +851,7 @@ export default function EditOutfitPage(){
                   ">
 
 
+
                     <h3 className="
                       font-bold
                     ">
@@ -736,6 +859,9 @@ export default function EditOutfitPage(){
                       {item.name}
 
                     </h3>
+
+
+
 
 
                     <div className="
@@ -746,6 +872,7 @@ export default function EditOutfitPage(){
                       {item.category}
 
                     </div>
+
 
 
                   </div>
@@ -763,12 +890,12 @@ export default function EditOutfitPage(){
           }
 
 
-
         </div>
 
 
 
       </div>
+
 
 
     </main>
