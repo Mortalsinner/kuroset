@@ -140,14 +140,10 @@ export default function DashboardPage() {
               </div>
 
               {/* Badge ala gambar referensi (Pink & Black) */}
-              <div className="bg-[#F652A0] text-black border-2 border-black px-4 py-1 inline-block mb-4 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-sm uppercase tracking-widest">
-                Fashion Studio
-              </div>
-
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight">
+              {/* <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight">
                 WELCOME BACK, <br />
                 <span className="text-[#F652A0] [text-shadow:2px_2px_0px_#000]">{username.toUpperCase()}</span> ✨
-              </h1>
+              </h1> */}
 
               <p className="mt-4 font-medium text-lg border-l-4 border-black pl-4">
                 {profile?.bio ||
@@ -207,7 +203,7 @@ export default function DashboardPage() {
           </Link>
 
           <Link 
-            href="/outfit" 
+            href="/explore" 
             className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all"
           >
             <h2 className="text-2xl font-black mb-2">🌎 EXPLORE</h2>
