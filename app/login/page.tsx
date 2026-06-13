@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 
@@ -10,56 +11,51 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.push("/dashboard");
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setAlert({
+          message: error.message,
+          type: "error",
+        });
+        return;
       }
-    };
-    checkSession();
-  }, [router]);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
       setAlert({
-        message: "Please fill in all fields.",
+        message: "Login berhasil! Mengalihkan ke lemari digital...",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        router.push("/wardrobe");
+      }, 1000);
+    } catch (error: any) {
+      console.error(error);
+      setAlert({
+        message: "Terjadi kesalahan sistem.",
         type: "error",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setAlert({
-        message: error.message,
-        type: "error",
-      });
-      return;
-    }
-
-    setAlert({
-      message: "Login successful! Welcome back.",
-      type: "success",
-    });
-
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1000);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#D5E04D] p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white">
-      
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black">
       {alert && (
         <Alert
           message={alert.message}
@@ -68,60 +64,73 @@ export default function LoginPage() {
         />
       )}
 
-      <div className="w-full max-w-md bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 space-y-6">
+      <div className="w-full max-w-md bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
         
-        {/* HEADER / BRAND BADGE */}
-        <div className="text-center space-y-2">
-          <div className="bg-[#F652A0] text-black border-2 border-black px-3 py-1 inline-block font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-xs uppercase tracking-widest">
-            Fashion Studio Club
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter leading-none uppercase">
-            Welcome <br />
-            <span className="text-[#52D1F6] [text-shadow:2px_2px_0px_#000]">Back</span> ⚡
+        {/* HEADER BRANDING AREA */}
+        <div className="text-center space-y-1">
+          <h1 className="text-4xl font-black uppercase tracking-tighter">
+            Welcome <span className="text-[#D5E04D] [text-shadow:2px_2px_0px_#000]">Back</span> ⚡
           </h1>
-          <p className="text-xs font-bold text-gray-600 uppercase tracking-tight pt-1">
-            Enter your credentials to access your digital wardrobe
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+            Access your custom outfit vault archive
           </p>
         </div>
 
-        {/* FORM INPUTS */}
-        <div className="space-y-4">
-          <div>
-            <label className="block font-black uppercase text-xs tracking-wider mb-1.5">
-              Email Address
-            </label>
+        <form onSubmit={handleLogin} className="space-y-4">
+          
+          {/* INPUT DATA BLOCK: EMAIL */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-black uppercase tracking-wide block">Email Address</label>
             <input
               type="email"
-              placeholder="your@email.com"
-              className="w-full bg-white border-4 border-black p-3 font-bold placeholder-gray-400 focus:outline-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+              placeholder="name@example.com"
+              className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#52D1F6] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
-          <div>
-            <label className="block font-black uppercase text-xs tracking-wider mb-1.5">
-              Password
-            </label>
+          {/* INPUT DATA BLOCK: PASSWORD */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-black uppercase tracking-wide block">Password</label>
             <input
               type="password"
               placeholder="••••••••"
-              className="w-full bg-white border-4 border-black p-3 font-bold placeholder-gray-400 focus:outline-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+              className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#52D1F6] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
+
+          {/* ACTION BUTTON TRIGGER */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#52D1F6] text-black disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-widest text-sm"
+            >
+              {loading ? "⚙️ Authenticating..." : "Sign In To Vault 🚀"}
+            </button>
+          </div>
+
+        </form>
+
+        {/* NAVIGATION LINK TO REGISTER PAGE */}
+        <div className="text-center pt-3 border-t-2 border-dashed border-black">
+          <p className="text-xs font-bold uppercase text-gray-500">
+            New to the vault?{" "}
+            <Link 
+              href="/register" 
+              className="text-black underline font-black hover:text-[#F652A0] transition-colors ml-1"
+            >
+              Create An Account
+            </Link>
+          </p>
         </div>
 
-        {/* CTA BUTTON */}
-        <button
-          onClick={handleLogin}
-          className="w-full bg-black text-white text-center border-4 border-black font-black py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider text-sm mt-2"
-        >
-          Let's Go 🚀
-        </button>
-
       </div>
-    </div>
+    </main>
   );
 }
