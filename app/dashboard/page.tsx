@@ -191,7 +191,7 @@ export default function DashboardPage() {
                 href="/profile"
                 className="bg-white text-black text-center border-4 border-black font-black px-6 py-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all"
               >
-                EDIT PROFILE
+                VIEW PROFILE
               </Link>
               <button 
                 onClick={openLogoutConfirmation} 
@@ -203,6 +203,32 @@ export default function DashboardPage() {
 
           </div>
         </section>
+
+        {/* PROFILE COMPLETION PROMPT */}
+        {(!profile?.username || !profile?.full_name || !profile?.avatar_url) && (
+          <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-black uppercase">Complete your profile!</h3>
+                <p className="mt-2 font-bold text-gray-700">To get the most from Kuroset, please finish your profile:</p>
+                <ul className="mt-3 text-sm font-bold space-y-1">
+                  {!profile?.username && <li>• Add a <strong>username</strong></li>}
+                  {!profile?.full_name && <li>• Add your <strong>full name</strong></li>}
+                  {!profile?.avatar_url && <li>• Upload a <strong>profile photo</strong></li>}
+                </ul>
+              </div>
+
+              <div className="flex-shrink-0">
+                <Link
+                  href="/profile/edit"
+                  className="bg-[#D5E04D] text-black font-black border-4 border-black px-6 py-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all"
+                >
+                  Complete Profile
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* STATS SECTION */}
         <section className="grid md:grid-cols-2 gap-6 md:gap-10">
