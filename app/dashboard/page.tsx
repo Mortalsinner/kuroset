@@ -46,14 +46,14 @@ export default function DashboardPage() {
       setProfile(profileData);
       setUsername(profileData?.username || "User");
 
+      // DI SINI PERUBAHANNYA: Menghapus .limit(6) agar mengambil semua data
       const { data: itemData } = await supabase
         .from("items")
         .select("*")
         .eq("id_user", user.id)
         .order("created_at", {
           ascending: false,
-        })
-        .limit(6);
+        });
 
       setItems(itemData || []);
 
@@ -120,7 +120,6 @@ export default function DashboardPage() {
   }
 
   return (
-    // Background warna Hijau Limau khas gambar referensi
     <main className="min-h-screen bg-[#D5E04D] p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white">
       {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
 
@@ -151,7 +150,8 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
-        {/* HERO SECTION - Tampilan Neo Brutalism */}
+
+        {/* HERO SECTION */}
         <section className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] mb-8 p-8 md:p-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             
@@ -173,12 +173,6 @@ export default function DashboardPage() {
                   <p className="font-bold">@{username}</p>
                 </div>
               </div>
-
-              {/* Badge ala gambar referensi (Pink & Black) */}
-              {/* <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight">
-                WELCOME BACK, <br />
-                <span className="text-[#F652A0] [text-shadow:2px_2px_0px_#000]">{username.toUpperCase()}</span> ✨
-              </h1> */}
 
               <p className="mt-4 font-medium text-lg border-l-4 border-black pl-4">
                 {profile?.bio ||
@@ -272,10 +266,11 @@ export default function DashboardPage() {
           </Link>
         </section>
 
-        {/* LATEST WARDROBE GRID */}
+        {/* WARDROBE GRID */}
         <section className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h2 className="text-3xl font-black tracking-tighter uppercase">Latest Wardrobe</h2>
+            {/* Teks diubah dari "Latest Wardrobe" menjadi "My Wardrobe" */}
+            <h2 className="text-3xl font-black tracking-tighter uppercase">My Wardrobe</h2>
             <Link 
               href="/wardrobe" 
               className="bg-[#D5E04D] border-2 border-black font-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
@@ -284,6 +279,7 @@ export default function DashboardPage() {
             </Link>
           </div>
 
+          {/* Grid Tailwind otomatis akan bertambah barisnya ke bawah jika item lebih dari 6 */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {items.map((item) => (
               <div
