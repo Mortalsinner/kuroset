@@ -143,6 +143,10 @@ export default function ViewProfilePage() {
       {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
 
       <div className="max-w-7xl mx-auto space-y-8">
+         <div className="flex gap-2">
+         <Link href="/dashboard" className="bg-white text-black font-black border-4 border-black px-4 py-2 text-xs uppercase">⬅️ Dashboard</Link>
+          <Link href="/profile/edit" className="bg-[#D5E04D] text-black font-black border-4 border-black px-4 py-2 text-xs uppercase">Edit Profile</Link>
+         </div>
         <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="relative w-28 h-28 border-4 border-black overflow-hidden bg-white">
@@ -156,11 +160,6 @@ export default function ViewProfilePage() {
               <div className="text-3xl font-black uppercase">{truncateMiddle(profile?.full_name || profile?.username, 18)}</div>
               <div className="text-sm font-bold text-gray-600">@{profile?.username}</div>
             </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Link href="/dashboard" className="bg-white text-black font-black border-4 border-black px-4 py-2 text-xs uppercase">⬅️ Dashboard</Link>
-            <Link href="/profile/edit" className="bg-[#D5E04D] text-black font-black border-4 border-black px-4 py-2 text-xs uppercase">Edit Profile</Link>
           </div>
         </header>
 

@@ -158,7 +158,7 @@ export default function OutfitDetailPage() {
           
           {outfit.is_public ? (
             <div className="bg-[#D5E04D] text-black border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">
-              Public Arrangement 🌎
+              Public 🌎
             </div>
           ) : (
             <div className="bg-black text-white border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">
