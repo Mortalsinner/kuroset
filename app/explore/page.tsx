@@ -92,8 +92,6 @@ export default function ExplorePage() {
 
       if (error) throw error;
 
-      console.log("Data Explore:", data);
-
       const formattedData = (data || []).map((item: any) => ({
         id_outfit: item.id_outfit,
         id_user: item.id_user,
@@ -189,8 +187,8 @@ export default function ExplorePage() {
           </div>
         </header>
 
-        {/* CONTROLS (Search, Sort, Time) - Z-INDEX NAIK KE Z-35 AGAR DROPDOWN DI ATAS CARD */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full relative z-35">
+        {/* CONTROLS (Search, Sort, Time) */}
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full relative z-[35]">
           <div className="md:col-span-6 bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 h-[56px]">
             <span className="text-xl">🔍</span>
             <input
@@ -251,7 +249,11 @@ export default function ExplorePage() {
               const mainCoverPath = outfit.outfit_items?.[0]?.items?.image_url || "";
 
               return (
-                <div key={outfit.id_outfit} className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between group transform hover:-translate-y-1 transition-all">
+                <div 
+                  key={outfit.id_outfit} 
+                  onClick={() => router.push(`/outfit/${outfit.id_outfit}/from-profile/${outfit.id_user}`)}
+                  className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between group transform hover:-translate-y-1 transition-all cursor-pointer select-none"
+                >
                   <div>
                     {/* COVER PREVIEW */}
                     <figure className="relative h-64 bg-gray-100 border-b-4 border-black overflow-hidden">
@@ -277,7 +279,7 @@ export default function ExplorePage() {
                     <div className="p-5 space-y-3">
                       <div className="flex items-center justify-between gap-2">
                         <div 
-                          className="bg-[#D5E04D] border-2 border-black text-xs font-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase select-none"
+                          className="bg-[#D5E04D] border-2 border-black text-xs font-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase"
                           title={outfit.users?.username ? `@${outfit.users.username}` : "stranger"}
                         >
                           @{outfit.users?.username 
@@ -295,7 +297,7 @@ export default function ExplorePage() {
                         {outfit.name}
                       </h3>
 
-                      <p className="text-xs font-bold text-gray-7xl line-clamp-2 min-h-[2rem]">
+                      <p className="text-xs font-bold text-gray-600 line-clamp-2 min-h-[2rem]">
                         {outfit.notes || "This creator left no notes for this combination."}
                       </p>
 
@@ -326,13 +328,16 @@ export default function ExplorePage() {
                     </div>
                   </div>
 
-                  {/* CARD ACTIONS */}
+                  {/* CARD ACTIONS - DIRECT TO DETAIL */}
                   <div className="p-5 pt-0">
                     <button
-                      onClick={() => router.push(`/profile/${outfit.id_user}`)}
-                      className="w-full text-center bg-white hover:bg-[#F652A0] hover:text-white text-black font-black py-2 text-xs border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Mencegah double-trigger dengan onClick milik parent div
+                        router.push(`/outfit/${outfit.id_outfit}/from-profile/${outfit.id_user}`);
+                      }}
+                      className="w-full text-center bg-[#F652A0] text-black font-black py-2.5 text-xs border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-black group-hover:text-white transition-all uppercase tracking-wider"
                     >
-                      View Creator Profile 📂
+                      View Details ⚡
                     </button>
                   </div>
                 </div>

@@ -115,8 +115,15 @@ export default function OutfitFromProfilePage() {
       {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
 
       <div className="max-w-5xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <Link href={`/profile/${userId}`} className="bg-white text-black font-black border-2 border-black px-4 py-2 text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider">⬅️ Back to Profile</Link>
+        
+        {/* TOP NAVIGATION BAR */}
+        <div className="flex justify-between items-center gap-4">
+          <Link 
+            href={`/profile/${userId}`} 
+            className="bg-white text-black font-black border-2 border-black px-4 py-2 text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
+          >
+            ⬅️ Back to Profile
+          </Link>
 
           {outfit.is_public ? (
             <div className="bg-[#D5E04D] text-black border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">Public Arrangement 🌎</div>
@@ -125,15 +132,35 @@ export default function OutfitFromProfilePage() {
           )}
         </div>
 
+        {/* OUTFIT HEADER CARD */}
         <header className="bg-white border-4 border-black p-8 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
           <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 text-8xl font-black text-gray-100 select-none pointer-events-none uppercase">FIT</div>
           <div className="relative z-10 space-y-4">
-            <span className="bg-[#F652A0] text-white border-2 border-black text-[10px] font-black px-2.5 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">Style Combination</span>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">{outfit.name}</h1>
-            <p className="font-bold text-sm text-gray-7xl border-l-4 border-black pl-4 max-w-2xl py-1 italic">"{outfit.notes || "This compilation has no custom layout notes or instructions attached."}"</p>
+            <span className="bg-[#F652A0] text-white border-2 border-black text-[10px] font-black px-2.5 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">
+              Style Combination
+            </span>
+            
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">
+              {outfit.name}
+            </h1>
+            
+            <p className="font-bold text-sm text-gray-7xl border-l-4 border-black pl-4 max-w-2xl py-1 italic">
+              "{outfit.notes || "This compilation has no custom layout notes or instructions attached."}"
+            </p>
+
+            {/* DEDICATED VIEW CREATOR PROFILE BUTTON */}
+            <div className="pt-2">
+              <Link 
+                href={`/profile/${userId}`}
+                className="inline-block bg-[#D5E04D] hover:bg-black hover:text-white text-black font-black border-4 border-black px-5 py-2.5 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+              >
+                View Creator Profile 👤
+              </Link>
+            </div>
           </div>
         </header>
 
+        {/* GRID SILHOUETTE PREVIEW */}
         <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="font-black text-lg uppercase tracking-tight mb-4 flex items-center gap-2"><span>✨</span> Grid Silhouette Preview</h2>
           {outfit.items.length === 0 ? (
@@ -150,6 +177,7 @@ export default function OutfitFromProfilePage() {
           )}
         </section>
 
+        {/* INSIDE THE ENSEMBLE */}
         <section className="space-y-4">
           <h2 className="text-2xl font-black uppercase tracking-tighter text-black [text-shadow:1px_1px_0px_#fff]">⚙️ Inside The Ensemble ({outfit.items.length})</h2>
 
