@@ -43,8 +43,6 @@ export default function ExplorePage() {
   // State Filter & Sorting
   const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
   const [timeRange, setTimeRange] = useState<"all" | "today" | "week" | "month">("all");
-  
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
@@ -56,9 +54,6 @@ export default function ExplorePage() {
 
   const sortLabels = { newest: "Newest First ✨", oldest: "Oldest First ⏳" };
   const timeLabels = { all: "All Time 🌍", today: "Today ⏰", week: "This Week 📅", month: "This Month 🌙" };
-  
-  // Tambah "Accessories" di dalam daftar array categories 🎩🎒
-  const categories = ["All", "TOP", "BOTTOM", "OUTER", "SHOE", "ACCESSORIES"];
 
   useEffect(() => {
     loadExploreOutfits();
@@ -137,12 +132,6 @@ export default function ExplorePage() {
       return matchName || matchUsername;
     })
     .filter((outfit) => {
-      if (selectedCategory === "All") return true;
-      return outfit.outfit_items?.some(
-        (oi) => oi.items?.category?.toLowerCase() === selectedCategory.toLowerCase()
-      );
-    })
-    .filter((outfit) => {
       if (timeRange === "all") return true;
       const outfitTime = new Date(outfit.created_at).getTime();
       const now = Date.now();
@@ -200,33 +189,8 @@ export default function ExplorePage() {
           </div>
         </header>
 
-        {/* UI FILTER KATEGORI */}
-        <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-20 flex flex-wrap items-center gap-3">
-          <span className="font-black text-xs uppercase tracking-wider text-gray-500 mr-2 block w-full sm:w-auto">
-            Filter Category:
-          </span>
-          <div className="flex flex-wrap gap-2.5">
-            {categories.map((cat) => {
-              const isActive = selectedCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all
-                    ${isActive 
-                      ? "bg-black text-white shadow-none translate-x-[2px] translate-y-[2px]" 
-                      : "bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#D5E04D] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                    }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* CONTROLS (Search, Sort, Time) */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full relative z-10">
+        {/* CONTROLS (Search, Sort, Time) - Z-INDEX NAIK KE Z-35 AGAR DROPDOWN DI ATAS CARD */}
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full relative z-35">
           <div className="md:col-span-6 bg-white border-4 border-black p-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 h-[56px]">
             <span className="text-xl">🔍</span>
             <input
@@ -248,7 +212,7 @@ export default function ExplorePage() {
               <span className={`transform transition-transform text-xs ${isSortDropdownOpen ? "rotate-180" : ""}`}>▼</span>
             </button>
             {isSortDropdownOpen && (
-              <div className="absolute top-[64px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
+              <div className="absolute top-[58px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
                 <button onClick={() => { setSortBy("newest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white">Newest First ✨</button>
                 <button onClick={() => { setSortBy("oldest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase hover:bg-[#F652A0] hover:text-white">Oldest First ⏳</button>
               </div>
@@ -265,7 +229,7 @@ export default function ExplorePage() {
               <span className={`transform transition-transform text-xs ${isTimeDropdownOpen ? "rotate-180" : ""}`}>▼</span>
             </button>
             {isTimeDropdownOpen && (
-              <div className="absolute top-[64px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
+              <div className="absolute top-[58px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
                 {(Object.keys(timeLabels) as Array<keyof typeof timeLabels>).map((key) => (
                   <button key={key} onClick={() => { setTimeRange(key); setIsTimeDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white">{timeLabels[key]}</button>
                 ))}
@@ -279,7 +243,7 @@ export default function ExplorePage() {
           <section className="bg-white border-4 border-dashed border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-10">
             <div className="text-5xl mb-4">🕶️</div>
             <h3 className="text-2xl font-black uppercase">No outfits found</h3>
-            <p className="font-bold text-gray-600 mt-2">Try adjusting your keywords, category, or time range selection!</p>
+            <p className="font-bold text-gray-600 mt-2">Try adjusting your keywords or time range selection!</p>
           </section>
         ) : (
           <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 relative z-10">
@@ -312,7 +276,6 @@ export default function ExplorePage() {
                     {/* CONTENT CARD */}
                     <div className="p-5 space-y-3">
                       <div className="flex items-center justify-between gap-2">
-                        {/* Menampilkan Username */}
                         <div 
                           className="bg-[#D5E04D] border-2 border-black text-xs font-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase select-none"
                           title={outfit.users?.username ? `@${outfit.users.username}` : "stranger"}

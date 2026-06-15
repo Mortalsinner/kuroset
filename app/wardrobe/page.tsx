@@ -25,6 +25,10 @@ export default function WardrobePage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
+  // State untuk Filter Kategori 👕🎒
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const categories = ["All", "TOP", "BOTTOM", "OUTER", "SHOE", "ACCESSORIES"];
+
   useEffect(() => {
     getItems();
   }, []);
@@ -88,6 +92,12 @@ export default function WardrobePage() {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
+  // Memproses data pakaian berdasarkan kategori yang dipilih
+  const filteredItems = items.filter((item) => {
+    if (selectedCategory === "All") return true;
+    return item.category?.toLowerCase() === selectedCategory.toLowerCase();
+  });
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#D5E04D] text-black font-black text-2xl tracking-wider uppercase animate-pulse">
@@ -121,7 +131,6 @@ export default function WardrobePage() {
 
           {/* ACTION BUTTON GROUP */}
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            {/* TOMBOL KEMBALI KE DASHBOARD */}
             <Link
               href="/dashboard"
               className="bg-white text-black font-black border-4 border-black px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider block w-full sm:w-auto text-center"
@@ -129,7 +138,6 @@ export default function WardrobePage() {
               ⬅️ Dashboard
             </Link>
 
-            {/* TOMBOL TAMBAH ITEM BARU */}
             <Link
               href="/wardrobe/new"
               className="bg-[#D5E04D] text-black font-black border-4 border-black px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider block w-full sm:w-auto text-center"
@@ -139,8 +147,36 @@ export default function WardrobePage() {
           </div>
         </header>
 
+        {/* UI FILTER KATEGORI - HANYA MUNCUL JIKA USER PUNYA ITEM */}
+        {items.length > 0 && (
+          <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-wrap items-center gap-3">
+            <span className="font-black text-xs uppercase tracking-wider text-gray-500 mr-2 block w-full sm:w-auto">
+              Filter Category:
+            </span>
+            <div className="flex flex-wrap gap-2.5">
+              {categories.map((cat) => {
+                const isActive = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all
+                      ${isActive 
+                        ? "bg-black text-white shadow-none translate-x-[2px] translate-y-[2px]" 
+                        : "bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#D5E04D] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* WARDROBE CONTENT */}
         {items.length === 0 ? (
+          /* KONDISI LEMARI BENAR-BENAR KOSONG */
           <div className="bg-white border-4 border-dashed border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="text-5xl mb-4">📭</div>
             <h2 className="text-2xl font-black uppercase">Wardrobe is empty</h2>
@@ -154,9 +190,25 @@ export default function WardrobePage() {
               Upload Your First Item 🚀
             </Link>
           </div>
+        ) : filteredItems.length === 0 ? (
+          /* KONDISI ITEM ADA, TAPI TIDAK ADA YANG SESUAI KATEGORI YANG DIPILIH */
+          <div className="bg-white border-4 border-dashed border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-5xl mb-4">🔍</div>
+            <h2 className="text-2xl font-black uppercase">No items found</h2>
+            <p className="font-bold text-gray-600 mt-2">
+              You don't have any items registered under the <span className="text-[#F652A0] uppercase font-black">"{selectedCategory}"</span> category yet.
+            </p>
+            <button
+              onClick={() => setSelectedCategory("All")}
+              className="mt-6 bg-black text-white font-black border-4 border-black px-5 py-2.5 text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
+            >
+              Clear Filter 🔄
+            </button>
+          </div>
         ) : (
+          /* RENDER ITEM YANG SUDAH TERFILTER */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <div
                 key={item.id_item}
                 className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between group transform hover:-translate-y-1 transition-all"

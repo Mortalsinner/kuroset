@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
+
 
 type Item = {
   id_item: string;
@@ -311,7 +313,7 @@ export default function DashboardPage() {
             )}
           </div>
         </section>
-
+        <Footer />
       </div>
     </main>
   );
