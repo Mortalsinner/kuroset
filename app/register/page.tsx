@@ -68,10 +68,10 @@ export default function RegisterPage() {
         {/* HEADER BRANDING AREA */}
         <div className="text-center space-y-1">
           <h1 className="text-4xl font-black uppercase tracking-tighter">
-            Join The <span className="text-[#52D1F6] [text-shadow:2px_2px_0px_#000]">Vault</span> ⚡
+            Join The <span className="text-[#52D1F6] [text-shadow:2px_2px_0px_#000]">Collective</span> ⚡
           </h1>
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-            Create an account to archive your custom outfits
+            Create an account
           </p>
         </div>
 

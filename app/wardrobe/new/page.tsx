@@ -114,7 +114,7 @@ export default function AddItemPage() {
               Add New <span className="text-[#52D1F6] [text-shadow:1.5px_1.5px_0px_#000]">Item</span> 👕
             </h1>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mt-0.5">
-              Deploying a new garment asset into the cloud wardrobe
+              Add new piece to your wardrobe
             </p>
           </div>
 
@@ -137,7 +137,7 @@ export default function AddItemPage() {
 
             {/* INPUT FILE MEDIA */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Upload Item Blueprint</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Upload Item </label>
               <div className="relative border-4 border-black bg-white p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <input
                   type="file"
@@ -150,7 +150,7 @@ export default function AddItemPage() {
 
             {/* INPUT NAMA ITEM */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Garment Name</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Item Name</label>
               <input
                 type="text"
                 placeholder="e.g., Heavyweight Oversized Hoodie"
@@ -163,7 +163,7 @@ export default function AddItemPage() {
 
             {/* INPUT KATEGORI */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Taxonomy Category</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Item Category</label>
               <div className="relative">
                 <select
                   value={category}
@@ -172,10 +172,10 @@ export default function AddItemPage() {
                   required
                 >
                   <option value="" disabled>Select Category</option>
-                  <option value="TOP">Top</option>
-                  <option value="BOTTOM">Bottom</option>
-                  <option value="OUTER">Outer</option>
-                  <option value="SHOE">Footwear</option>
+                  <option value="TOPS">Top</option>
+                  <option value="BOTTOMS">Bottom</option>
+                  <option value="OUTERS">Outer</option>
+                  <option value="SHOES">Shoes</option>
                   <option value="ACCESSORIES">Accessories</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 font-black border-l-4 border-black bg-black text-white">
@@ -198,7 +198,7 @@ export default function AddItemPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wide block">Store Acquisition URL</label>
+                <label className="text-xs font-black uppercase tracking-wide block">Store  URL</label>
                 <input
                   type="url"
                   placeholder="https://marketplace.com/..."
@@ -211,7 +211,7 @@ export default function AddItemPage() {
 
             {/* INPUT CATATAN */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Additional Specs / Notes</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Description</label>
               <textarea
                 placeholder="Write washing rules, material specifications, or defect logs..."
                 value={notes}
@@ -228,7 +228,7 @@ export default function AddItemPage() {
                 disabled={loading}
                 className="w-full bg-[#D5E04D] text-black disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-widest text-sm"
               >
-                {loading ? "⚙️ Executing Data Pipelines..." : "Secure To Vault Storage ⚡"}
+                {loading ? "⚙️ Executing Data Pipelines..." : "Add Piece to Wardrobe ⚡"}
               </button>
             </div>
 

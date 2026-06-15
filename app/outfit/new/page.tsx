@@ -156,7 +156,7 @@ export default function CreateOutfitPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-wide">Layout Notes / Description</label>
+              <label className="text-xs font-black uppercase tracking-wide">Description</label>
               <textarea
                 className="w-full bg-white border-4 border-black p-3 font-bold text-black focus:outline-none focus:bg-[#52D1F6] placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-28 resize-none transition-colors"
                 placeholder="Add style context, guidelines, or seasonal remarks..."
@@ -167,7 +167,7 @@ export default function CreateOutfitPage() {
 
             {/* CUSTOM NEO-BRUTALIST VISIBILITY SELECTOR */}
             <div className="space-y-3">
-              <h3 className="text-xs font-black uppercase tracking-wide">Visibility Vault</h3>
+              <h3 className="text-xs font-black uppercase tracking-wide">Visibility</h3>
               
               <div className="grid grid-cols-1 gap-3">
                 <div 
@@ -180,7 +180,7 @@ export default function CreateOutfitPage() {
                 >
                   <span className="text-xl">🔒</span>
                   <div>
-                    <p className="font-black text-sm uppercase">Private Configuration</p>
+                    <p className="font-black text-sm uppercase">Private</p>
                     <p className="text-[11px] font-bold text-gray-600 leading-tight mt-0.5">Only you can access this look layout</p>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export default function CreateOutfitPage() {
                 >
                   <span className="text-xl">🌎</span>
                   <div>
-                    <p className="font-black text-sm uppercase">Public Arrangement</p>
+                    <p className="font-black text-sm uppercase">Public</p>
                     <p className="text-[11px] font-bold text-gray-600 leading-tight mt-0.5">Visible to the whole community timeline</p>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export default function CreateOutfitPage() {
           <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:col-span-2 min-h-[420px] flex flex-col justify-between">
             <div>
               <h2 className="text-xl font-black uppercase tracking-tight border-b-4 border-black pb-2 flex items-center gap-2">
-                <span>🖼️</span> Live Blueprint Canvas ({selectedItems.length})
+                <span>🖼️</span> Outfit Canvas ({selectedItems.length})
               </h2>
 
               {selectedItems.length === 0 ? (
@@ -262,7 +262,7 @@ export default function CreateOutfitPage() {
               🗄️ Select Wardrobe Pieces
             </h2>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mt-0.5">
-              Click individual items to select or deselect them from your active workspace array.
+              Click individual items to select or deselect them from your active workspace.
             </p>
           </div>
 

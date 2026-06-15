@@ -72,7 +72,7 @@ export default function LoginPage() {
             Welcome <span className="text-[#D5E04D] [text-shadow:2px_2px_0px_#000]">Back</span> ⚡
           </h1>
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-            Access your custom outfit vault archive
+            Unlock your curated style archive
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-[#52D1F6] text-black disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-widest text-sm"
             >
-              {loading ? "⚙️ Authenticating..." : "Sign In To Vault 🚀"}
+              {loading ? "⚙️ Authenticating..." : "Sign In 🚀"}
             </button>
           </div>
 
@@ -120,7 +120,7 @@ export default function LoginPage() {
         {/* NAVIGATION LINK TO REGISTER PAGE */}
         <div className="text-center pt-3 border-t-2 border-dashed border-black">
           <p className="text-xs font-bold uppercase text-gray-500">
-            New to the vault?{" "}
+            New to Kurosette?{" "}
             <Link 
               href="/register" 
               className="text-black underline font-black hover:text-[#F652A0] transition-colors ml-1"

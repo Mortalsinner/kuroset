@@ -187,7 +187,7 @@ export default function OutfitDetailPage() {
         {/* COMPACT CLOTHING PIECES PREVIEW */}
         <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="font-black text-lg uppercase tracking-tight mb-4 flex items-center gap-2">
-            <span>✨</span> Grid Silhouette Preview
+            <span>✨</span> Outfit Grid Overview
           </h2>
           
           {outfit.items.length === 0 ? (
@@ -219,7 +219,7 @@ export default function OutfitDetailPage() {
         {/* DETAILED PIECES BREAKDOWN */}
         <section className="space-y-4">
           <h2 className="text-2xl font-black uppercase tracking-tighter text-black [text-shadow:1px_1px_0px_#fff]">
-            ⚙️ Inside The Ensemble ({outfit.items.length})
+            ⚙️ Inside The Outfit ({outfit.items.length})
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">

@@ -146,7 +146,7 @@ export default function OutfitPage() {
               My <span className="text-[#52D1F6] [text-shadow:2px_2px_0px_#000]">Outfits</span> ✨
             </h1>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-tight mt-1">
-              Manage and index your compiled look formulas
+              Organize and View Your Saved Outfits
             </p>
           </div>
           
@@ -295,7 +295,7 @@ export default function OutfitPage() {
                     onClick={() => setDeleteId(outfit.id_outfit)}
                     className="bg-white text-red-600 font-black text-center py-2.5 text-xs uppercase tracking-tight hover:bg-red-500 hover:text-white transition-all"
                   >
-                    Drop ❌
+                    Delete ❌
                   </button>
                 </div>
               </article>

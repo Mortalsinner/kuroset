@@ -28,7 +28,7 @@ export default function WardrobePage() {
 
   // State untuk Filter Kategori 👕🎒
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const categories = ["All", "TOP", "BOTTOM", "OUTER", "SHOE", "ACCESSORIES"];
+  const categories = ["All", "TOPS", "BOTTOMS", "OUTERS", "SHOES", "ACCESSORIES"];
 
   useEffect(() => {
     getItems();

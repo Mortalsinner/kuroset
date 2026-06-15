@@ -178,17 +178,15 @@ export default function EditItemPage() {
                 Edit <span className="text-[#F652A0] [text-shadow:1.5px_1.5px_0px_#000]">Item</span> ⚙️
               </h1>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mt-0.5">
-                Modifying catalog entry asset specs
+                Edit item information
               </p>
             </div>
-            <span className="text-xs bg-black text-white px-2 py-1 font-mono tracking-tight text-center uppercase">
-              ID: {id_item.slice(0, 6)}...
-            </span>
+          
           </div>
 
           {/* VISUAL MEDIA MEDIA PREVIEW ACCORDION */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black uppercase tracking-wide block">Item Asset Render</label>
+            <label className="text-xs font-black uppercase tracking-wide block">Item preview</label>
             <div className="relative h-72 w-full bg-gray-100 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden group">
               {preview ? (
                 <Image
@@ -208,7 +206,7 @@ export default function EditItemPage() {
 
           {/* MEDIA UPLOADER CONTROL */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black uppercase tracking-wide block">Replace Image File</label>
+            <label className="text-xs font-black uppercase tracking-wide block">Replace item image </label>
             <div className="relative border-4 border-black bg-white p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
               <input
                 type="file"
@@ -224,7 +222,7 @@ export default function EditItemPage() {
             
             {/* INPUT NAME */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Item Identity Name</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Item Name</label>
               <input
                 type="text"
                 value={name}
@@ -237,7 +235,7 @@ export default function EditItemPage() {
 
             {/* INPUT CATEGORY SELECT */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Wardrobe Taxonomy Category</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Item Category</label>
               <div className="relative">
                 <select
                   value={category}
@@ -246,10 +244,10 @@ export default function EditItemPage() {
                   className="w-full bg-white border-4 border-black p-3 font-bold text-black appearance-none focus:outline-none focus:bg-[#52D1F6] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors text-sm cursor-pointer"
                 >
                   <option value="" disabled>Pilih Kategori</option>
-                  <option value="TOP">TOP</option>
-                  <option value="BOTTOM">BOTTOM</option>
-                  <option value="OUTER">OUTER</option>
-                  <option value="SHOE">SHOE</option>
+                  <option value="TOPS">Tops</option>
+                  <option value="BOTTOMS">Bottoms</option>
+                  <option value="OUTERS">OUTERS</option>
+                  <option value="SHOES">SHOES</option>
                   <option value="ACCESSORIES">ACCESSORIES</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 font-black border-l-4 border-black bg-black text-white">
@@ -261,7 +259,7 @@ export default function EditItemPage() {
             {/* TWO COLUMN GRID FOR COLOR & SHOP URL */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wide block">Color Code Hue</label>
+                <label className="text-xs font-black uppercase tracking-wide block">Colorway Tone</label>
                 <input
                   type="text"
                   value={color}
@@ -272,7 +270,7 @@ export default function EditItemPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wide block">Acquisition Link Store</label>
+                <label className="text-xs font-black uppercase tracking-wide block">Store URL</label>
                 <input
                   type="url"
                   value={shopUrl}
@@ -285,7 +283,7 @@ export default function EditItemPage() {
 
             {/* INPUT NOTES TEXTAREA */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-wide block">Structural Notes & Context</label>
+              <label className="text-xs font-black uppercase tracking-wide block">Description</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -304,7 +302,7 @@ export default function EditItemPage() {
               disabled={saving}
               className="w-full bg-[#D5E04D] text-black disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-wider text-sm"
             >
-              {saving ? "⚙️ Saving System Config..." : "Commit Update Data 💾"}
+              {saving ? "⚙️ Saving System Config..." : "Update Piece 💾"}
             </button>
           </div>
         </form>
