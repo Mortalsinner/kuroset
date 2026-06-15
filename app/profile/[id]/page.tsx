@@ -170,9 +170,9 @@ export default function PublicProfilePage() {
             <div>
               {/* Jika nama profil juga berpotensi terlalu panjang, bisa dibungkus dengan truncateMiddle */}
               <div className="text-2xl font-black uppercase" title={profile.full_name || profile.username}>
-                {truncateMiddle(profile.full_name || profile.username, 24)}
+                {truncateMiddle(profile.full_name || profile.username, 18)}
               </div>
-              <div className="text-sm font-bold text-gray-600">@{profile.username}</div>
+              <div className="text-sm font-bold text-gray-600" title={`@${profile.username}`}>@{truncateMiddle(profile.username, 18)}</div>
             </div>
           </div>
         </div>

@@ -21,6 +21,17 @@ type OutfitItem = {
   items: { name: string; category: string; image_url: string } | null;
 };
 
+  const truncateMiddle = (str: string, maxLength: number = 18): string => {
+    if (!str || str.length <= maxLength) return str;
+    
+    const separator = "...";
+    const charsToShow = maxLength - separator.length;
+    const frontChars = Math.ceil(charsToShow / 2);
+    const backChars = Math.floor(charsToShow / 2);
+    
+    return str.substring(0, frontChars) + separator + str.substring(str.length - backChars);
+  };
+
 type Outfit = {
   id_outfit: string;
   name: string;
@@ -141,7 +152,7 @@ export default function ViewProfilePage() {
               )}
             </div>
             <div>
-              <div className="text-3xl font-black uppercase">{profile?.full_name || profile?.username}</div>
+              <div className="text-3xl font-black uppercase">{truncateMiddle(profile?.full_name || profile?.username, 18)}</div>
               <div className="text-sm font-bold text-gray-600">@{profile?.username}</div>
             </div>
           </div>
