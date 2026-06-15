@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 type Outfit = {
   id_outfit: string;
@@ -337,6 +338,7 @@ export default function OutfitPage() {
           </div>
         </dialog>
       )}
+       <Footer />
     </main>
   );
 }

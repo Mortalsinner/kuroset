@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 type Item = {
   id_item: string;
@@ -126,7 +127,7 @@ export default function OutfitFromProfilePage() {
           </Link>
 
           {outfit.is_public ? (
-            <div className="bg-[#D5E04D] text-black border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">Public Arrangement 🌎</div>
+            <div className="bg-[#D5E04D] text-black border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">Public 🌎</div>
           ) : (
             <div className="bg-black text-white border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">Private Vault 🔒</div>
           )}
@@ -208,6 +209,7 @@ export default function OutfitFromProfilePage() {
           </div>
         </section>
       </div>
+       <Footer />
     </main>
   );
 }

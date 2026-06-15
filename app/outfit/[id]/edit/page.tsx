@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 type Item = {
   id_item: string;
@@ -309,6 +310,7 @@ export default function EditOutfitPage() {
         </div>
 
       </div>
+       <Footer />
     </main>
   );
 }

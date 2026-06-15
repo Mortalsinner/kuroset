@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 type Item = {
   name: string;
@@ -439,6 +440,7 @@ export default function ExplorePage() {
             })}
           </section>
         )}
+        <Footer />
       </div>
     </main>
   );

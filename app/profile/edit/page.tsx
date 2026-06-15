@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -261,6 +262,7 @@ export default function EditProfilePage() {
 
         </div>
       </div>
+       <Footer />
     </main>
   );
 }

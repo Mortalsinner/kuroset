@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function LoginPage() {
 
       if (error) {
         setAlert({
-          message: error.message,
+          message: "Invalid email or password.",
           type: "error",
         });
         return;
@@ -46,7 +47,7 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error(error);
       setAlert({
-        message: "Terjadi kesalahan sistem.",
+        message: "Try Again Later.",
         type: "error",
       });
     } finally {
@@ -131,6 +132,7 @@ export default function LoginPage() {
         </div>
 
       </div>
+      <Footer />
     </main>
   );
 }

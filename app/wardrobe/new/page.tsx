@@ -6,6 +6,7 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 export default function AddItemPage() {
   const router = useRouter();
@@ -235,6 +236,7 @@ export default function AddItemPage() {
           </form>
         </div>
       </div>
+       <Footer />
     </main>
   );
 }

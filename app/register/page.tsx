@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -122,6 +123,7 @@ export default function RegisterPage() {
         </div>
 
       </div>
+       <Footer />
     </main>
   );
 }

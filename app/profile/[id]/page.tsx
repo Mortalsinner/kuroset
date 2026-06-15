@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 type Item = {
   name: string;
@@ -216,6 +217,7 @@ export default function PublicProfilePage() {
           )}
         </section>
       </div>
+       <Footer />
     </main>
   );
 }

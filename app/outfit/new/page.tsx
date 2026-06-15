@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import Footer from "@/components/Footer";
 
 type Item = {
   id_item: string;
@@ -320,6 +321,7 @@ export default function CreateOutfitPage() {
         </section>
 
       </div>
+       <Footer />
     </main>
   );
 }

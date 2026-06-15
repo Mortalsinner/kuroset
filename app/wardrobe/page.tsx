@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
+import Footer from "@/components/Footer";
 
 type Item = {
   id_item: string;
@@ -344,6 +345,7 @@ export default function WardrobePage() {
           </div>
         </div>
       )}
+       <Footer />
     </main>
   );
 }
