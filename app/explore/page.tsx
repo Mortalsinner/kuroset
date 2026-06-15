@@ -24,6 +24,10 @@ type UserProfile = {
   bio: string | null;
 };
 
+type LikeRelation = {
+  id_user: string;
+};
+
 type OtherUserOutfit = {
   id_outfit: string;
   id_user: string;
@@ -32,6 +36,7 @@ type OtherUserOutfit = {
   created_at: string;
   users: UserProfile | null;
   outfit_items: OutfitItem[];
+  outfit_likes: LikeRelation[]; // Menampung relasi user yang me-like outfit ini
 };
 
 export default function ExplorePage() {
@@ -39,9 +44,10 @@ export default function ExplorePage() {
   const [outfits, setOutfits] = useState<OtherUserOutfit[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
-  // State Filter & Sorting
-  const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
+  // State Filter & Sorting (Ditambahkan opsi "most_liked")
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "most_liked">("newest");
   const [timeRange, setTimeRange] = useState<"all" | "today" | "week" | "month">("all");
 
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -52,11 +58,24 @@ export default function ExplorePage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  const sortLabels = { newest: "Newest First ✨", oldest: "Oldest First ⏳" };
+  const sortLabels = { 
+    newest: "Newest First ✨", 
+    oldest: "Oldest First ⏳", 
+    most_liked: "Most Liked 🔥" 
+  };
   const timeLabels = { all: "All Time 🌍", today: "Today ⏰", week: "This Week 📅", month: "This Month 🌙" };
 
   useEffect(() => {
-    loadExploreOutfits();
+    // Ambil session user aktif dan muat koleksi komunitas
+    const initializeExplore = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setCurrentUserId(session.user.id);
+      }
+      await loadExploreOutfits();
+    };
+
+    initializeExplore();
   }, []);
 
   const loadExploreOutfits = async () => {
@@ -85,6 +104,9 @@ export default function ExplorePage() {
               category,
               image_url
             )
+          ),
+          outfit_likes (
+            id_user
           )
         `)
         .eq("is_public", true)
@@ -100,6 +122,7 @@ export default function ExplorePage() {
         created_at: item.created_at,
         users: Array.isArray(item.users) ? item.users[0] : item.users,
         outfit_items: item.outfit_items || [],
+        outfit_likes: item.outfit_likes || [], // Pemetaan array likes
       }));
 
       setOutfits(formattedData);
@@ -111,6 +134,48 @@ export default function ExplorePage() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleLike = async (outfitId: string, isLikedCurrently: boolean) => {
+    if (!currentUserId) {
+      setAlert({ message: "You must be logged in to like an outfit!", type: "info" });
+      return;
+    }
+
+    // --- OPTIMISTIC UI UPDATE ---
+    // Secara instan merubah angka & warna di browser tanpa menunggu respons lambat server
+    setOutfits((prevOutfits) =>
+      prevOutfits.map((o) => {
+        if (o.id_outfit === outfitId) {
+          const updatedLikes = isLikedCurrently
+            ? o.outfit_likes.filter((like) => like.id_user !== currentUserId)
+            : [...o.outfit_likes, { id_user: currentUserId }];
+          return { ...o, outfit_likes: updatedLikes };
+        }
+        return o;
+      })
+    );
+
+    try {
+      if (isLikedCurrently) {
+        const { error } = await supabase
+          .from("outfit_likes")
+          .delete()
+          .eq("id_outfit", outfitId)
+          .eq("id_user", currentUserId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("outfit_likes")
+          .insert({ id_outfit: outfitId, id_user: currentUserId });
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      // Rollback data jika request backend mengalami kegagalan
+      loadExploreOutfits();
+      setAlert({ message: "Action failed. Reverting status.", type: "error" });
     }
   };
 
@@ -141,6 +206,15 @@ export default function ExplorePage() {
       return true;
     })
     .sort((a, b) => {
+      // Menangani Pengurutan Berdasarkan Most Liked
+      if (sortBy === "most_liked") {
+        const countA = a.outfit_likes?.length || 0;
+        const countB = b.outfit_likes?.length || 0;
+        if (countB !== countA) return countB - countA;
+        // Jika total like sama, kembalikan ke sorting terbaru
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      
       const timeA = new Date(a.created_at).getTime();
       const timeB = new Date(b.created_at).getTime();
       return sortBy === "newest" ? timeB - timeA : timeA - timeB;
@@ -212,7 +286,8 @@ export default function ExplorePage() {
             {isSortDropdownOpen && (
               <div className="absolute top-[58px] left-0 w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col z-50">
                 <button onClick={() => { setSortBy("newest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white">Newest First ✨</button>
-                <button onClick={() => { setSortBy("oldest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase hover:bg-[#F652A0] hover:text-white">Oldest First ⏳</button>
+                <button onClick={() => { setSortBy("oldest"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase border-b-2 border-black hover:bg-[#F652A0] hover:text-white">Oldest First ⏳</button>
+                <button onClick={() => { setSortBy("most_liked"); setIsSortDropdownOpen(false); }} className="text-left p-3 font-black text-xs uppercase hover:bg-[#F652A0] hover:text-white">Most Liked 🔥</button>
               </div>
             )}
           </div>
@@ -247,6 +322,8 @@ export default function ExplorePage() {
           <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 relative z-10">
             {processedOutfits.map((outfit) => {
               const mainCoverPath = outfit.outfit_items?.[0]?.items?.image_url || "";
+              const totalLikes = outfit.outfit_likes?.length || 0;
+              const isLikedByMe = outfit.outfit_likes?.some((like) => like.id_user === currentUserId) || false;
 
               return (
                 <div 
@@ -328,14 +405,31 @@ export default function ExplorePage() {
                     </div>
                   </div>
 
-                  {/* CARD ACTIONS - DIRECT TO DETAIL */}
-                  <div className="p-5 pt-0">
+                  {/* CARD ACTIONS - DUAL ACTIONS ROW */}
+                  <div className="p-5 pt-0 flex gap-3">
+                    {/* Neo-Brutalist Like Button */}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // Mencegah double-trigger dengan onClick milik parent div
+                        e.stopPropagation(); // Mencegah bentrok click dengan parent card div
+                        toggleLike(outfit.id_outfit, isLikedByMe);
+                      }}
+                      className={`px-3 py-2.5 font-black text-xs border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 ${
+                        isLikedByMe 
+                          ? "bg-[#F652A0] text-black" 
+                          : "bg-white text-black hover:bg-gray-100"
+                      }`}
+                    >
+                      <span>{isLikedByMe ? "❤️" : "🤍"}</span>
+                      <span>{totalLikes}</span>
+                    </button>
+
+                    {/* View Details Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         router.push(`/outfit/${outfit.id_outfit}/from-profile/${outfit.id_user}`);
                       }}
-                      className="w-full text-center bg-[#F652A0] text-black font-black py-2.5 text-xs border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-black group-hover:text-white transition-all uppercase tracking-wider"
+                      className="flex-1 text-center bg-white text-black font-black py-2.5 text-xs border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all uppercase tracking-wider"
                     >
                       View Details ⚡
                     </button>
