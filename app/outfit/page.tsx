@@ -22,6 +22,7 @@ export default function OutfitPage() {
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     getOutfits();
@@ -109,6 +110,15 @@ export default function OutfitPage() {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
+  const filteredOutfits = outfits.filter((outfit) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      outfit.name.toLowerCase().includes(query) ||
+      outfit.notes?.toLowerCase().includes(query)
+    );
+  });
+
   if (loading) {
     return (
       <main className="min-h-screen flex justify-center items-center bg-[#52D1F6] text-black font-black text-2xl tracking-widest uppercase animate-pulse">
@@ -159,6 +169,23 @@ export default function OutfitPage() {
           </div>
         </header>
 
+        {/* SEARCH BAR */}
+        {outfits.length > 0 && (
+          <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-3 w-full md:max-w-xl bg-[#F7F7F7] border-2 border-black px-4 py-2">
+              <span className="text-xl">🔎</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search outfits by name or notes..."
+                className="w-full bg-transparent outline-none text-sm font-black uppercase tracking-wide text-black placeholder:text-gray-400"
+              />
+            </div>
+          </section>
+        )}
+
+
         {/* OUTFITS MATRIX GRID */}
         {outfits.length === 0 ? (
           <div className="bg-white border-4 border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-4">
@@ -174,9 +201,17 @@ export default function OutfitPage() {
               Assemble First Look 🚀
             </Link>
           </div>
+        ) : filteredOutfits.length === 0 ? (
+          <div className="bg-white border-4 border-dashed border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-4">
+            <span className="text-5xl block">🔍</span>
+            <h2 className="text-xl font-black uppercase">No matching outfits</h2>
+            <p className="text-xs font-bold text-gray-400 uppercase max-w-sm mx-auto leading-relaxed">
+              Adjust your search or category filter to find a saved outfit.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {outfits.map((outfit) => (
+            {filteredOutfits.map((outfit) => (
               <article
                 key={outfit.id_outfit}
                 className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 transition-transform"

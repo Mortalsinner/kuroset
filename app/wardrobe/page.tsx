@@ -24,6 +24,7 @@ export default function WardrobePage() {
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // State untuk Filter Kategori 👕🎒
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -92,11 +93,21 @@ export default function WardrobePage() {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
-  // Memproses data pakaian berdasarkan kategori yang dipilih
-  const filteredItems = items.filter((item) => {
-    if (selectedCategory === "All") return true;
-    return item.category?.toLowerCase() === selectedCategory.toLowerCase();
-  });
+  // Memproses data pakaian berdasarkan kategori dan pencarian
+  const filteredItems = items
+    .filter((item) => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        item.name.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query) ||
+        item.notes?.toLowerCase().includes(query)
+      );
+    })
+    .filter((item) => {
+      if (selectedCategory === "All") return true;
+      return item.category?.toLowerCase() === selectedCategory.toLowerCase();
+    });
 
   if (loading) {
     return (
@@ -147,29 +158,47 @@ export default function WardrobePage() {
           </div>
         </header>
 
+        {/* UI SEARCH BAR - HANYA MUNCUL JIKA USER PUNYA ITEM */}
+        {items.length > 0 && (
+          <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-3 w-full md:max-w-xl bg-[#F7F7F7] border-2 border-black px-4 py-2">
+              <span className="text-xl">🔎</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search wardrobe by name, category, or notes..."
+                className="w-full bg-transparent outline-none text-sm font-black uppercase tracking-wide text-black placeholder:text-gray-400"
+              />
+            </div>
+          </section>
+        )}
+
         {/* UI FILTER KATEGORI - HANYA MUNCUL JIKA USER PUNYA ITEM */}
         {items.length > 0 && (
-          <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-wrap items-center gap-3">
-            <span className="font-black text-xs uppercase tracking-wider text-gray-500 mr-2 block w-full sm:w-auto">
-              Filter Category:
-            </span>
-            <div className="flex flex-wrap gap-2.5">
-              {categories.map((cat) => {
-                const isActive = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all
-                      ${isActive 
-                        ? "bg-black text-white shadow-none translate-x-[2px] translate-y-[2px]" 
-                        : "bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#D5E04D] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                      }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
+          <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-black text-xs uppercase tracking-wider text-gray-500 mr-2 block w-full sm:w-auto">
+                Filter Category:
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                {categories.map((cat) => {
+                  const isActive = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-4 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all
+                        ${isActive 
+                          ? "bg-black text-white shadow-none translate-x-[2px] translate-y-[2px]" 
+                          : "bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#D5E04D] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
         )}

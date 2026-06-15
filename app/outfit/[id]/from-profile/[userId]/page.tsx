@@ -104,7 +104,7 @@ export default function OutfitFromProfilePage() {
           <span className="text-5xl block mb-4">🕵️‍♂️</span>
           <h1 className="text-2xl font-black uppercase tracking-tight">Outfit Not Found</h1>
           <p className="font-bold text-gray-500 mt-2 uppercase text-xs">The stylistic formula you are looking for doesn't exist.</p>
-          <Link href={`/profile/${userId}`} className="mt-6 inline-block bg-[#52D1F6] text-black font-black border-4 border-black px-5 py-2.5 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">Back to Explore ↩️</Link>
+          <Link href={`/explore`} className="mt-6 inline-block bg-[#52D1F6] text-black font-black border-4 border-black px-5 py-2.5 text-xs uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">Back to Explore ↩️</Link>
         </div>
       </main>
     );
@@ -119,7 +119,7 @@ export default function OutfitFromProfilePage() {
         {/* TOP NAVIGATION BAR */}
         <div className="flex justify-between items-center gap-4">
           <Link 
-            href={`/profile/${userId}`} 
+            href={`/explore`} 
             className="bg-white text-black font-black border-2 border-black px-4 py-2 text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
           >
             ⬅️ Back to Explore
