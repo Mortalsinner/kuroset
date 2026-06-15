@@ -122,7 +122,7 @@ export default function OutfitFromProfilePage() {
             href={`/profile/${userId}`} 
             className="bg-white text-black font-black border-2 border-black px-4 py-2 text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase tracking-wider"
           >
-            ⬅️ Back to Profile
+            ⬅️ Back to Explore
           </Link>
 
           {outfit.is_public ? (
