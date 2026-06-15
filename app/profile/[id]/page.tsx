@@ -138,6 +138,10 @@ export default function PublicProfilePage() {
       {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
 
       <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex gap-2 mb-4">
+          <Link href="/explore" className="bg-white text-black font-black border-4 border-black px-4 py-2 text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all uppercase">⬅️ Explore</Link>
+        </div>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="relative w-28 h-28 border-4 border-black overflow-hidden bg-white">
@@ -151,10 +155,6 @@ export default function PublicProfilePage() {
               <div className="text-2xl font-black uppercase">{profile.full_name || profile.username}</div>
               <div className="text-sm font-bold text-gray-600">@{profile.username}</div>
             </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Link href="/explore" className="bg-white text-black font-black border-4 border-black px-4 py-2 text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all uppercase">⬅️ Explore</Link>
           </div>
         </div>
 
