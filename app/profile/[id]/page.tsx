@@ -112,6 +112,22 @@ export default function PublicProfilePage() {
     return data.publicUrl;
   };
 
+  /**
+   * Fungsi Helper untuk memotong string di bagian tengah
+   * @param str Teks asli yang ingin dipotong
+   * @param maxLength Batas maksimal karakter sebelum pemotongan dilakukan
+   */
+  const truncateMiddle = (str: string, maxLength: number = 18): string => {
+    if (!str || str.length <= maxLength) return str;
+    
+    const separator = "...";
+    const charsToShow = maxLength - separator.length;
+    const frontChars = Math.ceil(charsToShow / 2);
+    const backChars = Math.floor(charsToShow / 2);
+    
+    return str.substring(0, frontChars) + separator + str.substring(str.length - backChars);
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#D5E04D] text-black font-black text-2xl tracking-wider uppercase animate-pulse">
@@ -126,7 +142,7 @@ export default function PublicProfilePage() {
         <div className="space-y-4 text-center">
           <div>Profil tidak ditemukan.</div>
           <div>
-            <Link href="/explore" className="underline font-bold">Kembali ke Explore</Link>
+            <Link href="/explore" className="underline font-bold">Back to Explore Page</Link>
           </div>
         </div>
       </main>
@@ -152,7 +168,10 @@ export default function PublicProfilePage() {
               )}
             </div>
             <div>
-              <div className="text-2xl font-black uppercase">{profile.full_name || profile.username}</div>
+              {/* Jika nama profil juga berpotensi terlalu panjang, bisa dibungkus dengan truncateMiddle */}
+              <div className="text-2xl font-black uppercase" title={profile.full_name || profile.username}>
+                {truncateMiddle(profile.full_name || profile.username, 24)}
+              </div>
               <div className="text-sm font-bold text-gray-600">@{profile.username}</div>
             </div>
           </div>
@@ -181,7 +200,10 @@ export default function PublicProfilePage() {
                       )}
                     </div>
                     <div className="p-4">
-                      <div className="font-black uppercase truncate">{o.name}</div>
+                      {/* Menggunakan kustomisasi pemotongan tengah dengan batas maksimal 18 karakter */}
+                      <div className="font-black uppercase" title={o.name}>
+                        {truncateMiddle(o.name, 18)}
+                      </div>
                       <div className="text-xs text-gray-600">{new Date(o.created_at).toLocaleDateString()}</div>
                       <div className="mt-3">
                         <Link href={`/outfit/${o.id_outfit}/from-profile/${profile.id_user}`} className="inline-block bg-[#D5E04D] text-black font-black px-3 py-2 border-2 border-black text-xs uppercase">View Outfit</Link>
