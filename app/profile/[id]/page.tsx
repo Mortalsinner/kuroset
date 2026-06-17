@@ -109,7 +109,10 @@ export default function PublicProfilePage() {
     if (path.startsWith("http")) return path;
 
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-    const { data } = supabase.storage.from("wardrobe-images").getPublicUrl(cleanPath);
+    
+    // Deteksi apakah ini avatar (path mengandung 'avatar') atau item image
+    const bucketName = cleanPath.includes("avatar") ? "profile-images" : "wardrobe-images";
+    const { data } = supabase.storage.from(bucketName).getPublicUrl(cleanPath);
     return data.publicUrl;
   };
 
