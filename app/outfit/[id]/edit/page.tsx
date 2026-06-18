@@ -250,7 +250,7 @@ export default function EditOutfitPage() {
               disabled={saving}
               className="w-full bg-[#D5E04D] text-black disabled:bg-gray-400 font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-none transition-all uppercase tracking-widest text-sm"
             >
-              {saving ? "⚙️ Saving Matrix Alterations..." : "Commit Changes to Database ⚡"}
+              {saving ? "⚙️ Saving Matrix Alterations..." : "Update Outfit ⚡"}
             </button>
           </div>
         </div>
