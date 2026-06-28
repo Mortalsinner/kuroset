@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 export default function EditProfilePage() {
   const router = useRouter();
 
+  // State utama untuk status loading, penyimpanan, notifikasi, dan data form profil
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
@@ -24,10 +25,12 @@ export default function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
 
+  // Saat halaman dibuka, ambil data profil user yang sedang login
   useEffect(() => {
     getProfile();
   }, []);
 
+  // Ambil data profil dari tabel users dan siapkan preview avatar
   const getProfile = async () => {
     try {
       const {
@@ -69,6 +72,7 @@ export default function EditProfilePage() {
     }
   };
 
+  // Saat user memilih file avatar baru, simpan file dan tampilkan preview sementara
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -78,6 +82,7 @@ export default function EditProfilePage() {
     setPreview(URL.createObjectURL(file));
   };
 
+  // Simpan perubahan profil, upload avatar baru jika ada, lalu update data user
   const handleSave = async () => {
     try {
       setSaving(true);

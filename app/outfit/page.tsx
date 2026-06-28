@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
+// Struktur data outfit yang akan ditampilkan di halaman daftar
 type Outfit = {
   id_outfit: string;
   name: string;
@@ -16,6 +17,7 @@ type Outfit = {
 };
 
 export default function OutfitPage() {
+  // State utama untuk menyimpan daftar outfit, status loading, modal hapus, alert, dan pencarian
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -25,10 +27,12 @@ export default function OutfitPage() {
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Saat halaman dibuka, ambil semua outfit milik user yang sedang login
   useEffect(() => {
     getOutfits();
   }, []);
 
+  // Ambil data outfit dari database beserta item-item yang terkait
   const getOutfits = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -73,6 +77,7 @@ export default function OutfitPage() {
     }
   };
 
+  // Hapus outfit beserta relasi item di tabel outfit_items
   const deleteOutfit = async () => {
     if (!deleteId) return;
 
@@ -107,10 +112,12 @@ export default function OutfitPage() {
     }
   };
 
+  // Helper untuk mengambil URL gambar item dari storage Supabase
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
+  // Filter outfit berdasarkan kata kunci pencarian nama atau notes
   const filteredOutfits = outfits.filter((outfit) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();

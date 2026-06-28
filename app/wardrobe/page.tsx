@@ -18,23 +18,29 @@ type Item = {
 };
 
 export default function WardrobePage() {
+  // Menyimpan daftar item yang ditampilkan di halaman wardrobe
   const [items, setItems] = useState<Item[]>([]);
+  // State untuk menandai proses memuat data dan item yang sedang dipilih untuk dihapus
   const [loading, setLoading] = useState(true);
   const [deleteItemData, setDeleteItemData] = useState<Item | null>(null);
+  // Menyimpan pesan notifikasi untuk memberi tahu user hasil aksi
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
+  // State untuk pencarian teks dan filter kategori
   const [searchQuery, setSearchQuery] = useState("");
 
   // State untuk Filter Kategori 👕🎒
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const categories = ["All", "TOPS", "BOTTOMS", "OUTERS", "SHOES", "ACCESSORIES"];
 
+  // Saat halaman pertama kali dibuka, ambil semua item milik user yang sedang login
   useEffect(() => {
     getItems();
   }, []);
 
+  // Mengambil data item dari database dan menyimpannya ke state
   const getItems = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -58,6 +64,7 @@ export default function WardrobePage() {
     }
   };
 
+  // Menghapus item dari storage dan database, lalu memperbarui daftar tampilan
   const deleteItem = async () => {
     if (!deleteItemData) return;
 
@@ -90,11 +97,12 @@ export default function WardrobePage() {
     }
   };
 
+  // Mengubah path gambar menjadi URL publik yang bisa ditampilkan di halaman
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
-  // Memproses data pakaian berdasarkan kategori dan pencarian
+  // Memfilter item berdasarkan kata pencarian dan kategori yang dipilih
   const filteredItems = items
     .filter((item) => {
       if (!searchQuery) return true;

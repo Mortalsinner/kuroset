@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
+// Struktur data item yang ada di wardrobe user
 type Item = {
   id_item: string;
   name: string;
@@ -18,11 +19,13 @@ type Item = {
   notes: string | null;
 };
 
+// Struktur relasi outfit dengan item yang terhubung
 type OutfitItem = {
   items: { name: string; category: string; image_url: string } | null;
 };
 
-  const truncateMiddle = (str: string, maxLength: number = 18): string => {
+// Helper untuk memotong nama yang terlalu panjang agar tampil lebih rapi
+const truncateMiddle = (str: string, maxLength: number = 18): string => {
     if (!str || str.length <= maxLength) return str;
     
     const separator = "...";
@@ -33,6 +36,7 @@ type OutfitItem = {
     return str.substring(0, frontChars) + separator + str.substring(str.length - backChars);
   };
 
+// Struktur data outfit yang akan ditampilkan di halaman profil
 type Outfit = {
   id_outfit: string;
   name: string;
@@ -43,6 +47,7 @@ type Outfit = {
 export default function ViewProfilePage() {
   const router = useRouter();
 
+  // State utama untuk status loading, alert, profil, wardrobe, dan outfit user
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
@@ -50,10 +55,12 @@ export default function ViewProfilePage() {
   const [items, setItems] = useState<Item[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
 
+  // Saat halaman dibuka, ambil semua data profil, wardrobe, dan outfit milik user
   useEffect(() => {
     loadAll();
   }, []);
 
+  // Ambil data user, item wardrobe, dan outfit dari database
   const loadAll = async () => {
     try {
       setLoading(true);
@@ -119,10 +126,12 @@ export default function ViewProfilePage() {
     }
   };
 
+  // Helper untuk mengambil URL gambar item dari storage Supabase
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
+  // Helper untuk mengambil URL avatar profil dari storage Supabase
   const getAvatarUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;

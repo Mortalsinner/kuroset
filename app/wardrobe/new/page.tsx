@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 export default function AddItemPage() {
   const router = useRouter();
 
+  // State form untuk menyimpan data item yang akan ditambahkan
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [color, setColor] = useState("");
@@ -19,17 +20,20 @@ export default function AddItemPage() {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // State untuk menampilkan pesan sukses, error, atau info kepada pengguna
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
 
+  // Fungsi utama saat form disubmit: validasi user, upload gambar, lalu simpan item ke database
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       setLoading(true);
 
+      // Cek apakah user sudah login sebelum menyimpan data
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -48,6 +52,7 @@ export default function AddItemPage() {
         return;
       }
 
+      // Siapkan nama file unik untuk gambar agar tidak bentrok dengan item lain
       const fileExt = image.name.split(".").pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
@@ -57,6 +62,7 @@ export default function AddItemPage() {
 
       if (uploadError) throw uploadError;
 
+      // Simpan data item ke tabel items setelah gambar berhasil diupload
       const { error: insertError } = await supabase
         .from("items")
         .insert({

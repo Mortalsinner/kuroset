@@ -13,6 +13,7 @@ export default function EditItemPage() {
   const params = useParams();
   const id_item = params.id_item as string;
 
+  // State utama untuk status loading, form item, preview gambar, dan pesan alert
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -31,12 +32,14 @@ export default function EditItemPage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
+  // Saat halaman dibuka, ambil data item berdasarkan id yang ada di URL
   useEffect(() => {
     if (id_item) {
       fetchItem();
     }
   }, [id_item]);
 
+  // Ambil detail item dari database dan siapkan nilai form serta preview gambar
   const fetchItem = async () => {
     try {
       const { data, error } = await supabase
@@ -69,6 +72,7 @@ export default function EditItemPage() {
     }
   };
 
+  // Saat user memilih gambar baru, simpan file dan tampilkan preview sementara
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -77,6 +81,7 @@ export default function EditItemPage() {
     setPreview(URL.createObjectURL(file));
   };
 
+  // Simpan perubahan item, upload gambar baru jika ada, lalu update data di database
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 

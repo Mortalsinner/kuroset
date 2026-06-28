@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 export default function RegisterPage() {
   const router = useRouter();
 
+  // State untuk input email, password, status loading, dan notifikasi
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ export default function RegisterPage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
+  // Fungsi untuk mendaftarkan akun baru melalui Supabase Auth
   const handleRegister = async () => {
     try {
       setLoading(true);

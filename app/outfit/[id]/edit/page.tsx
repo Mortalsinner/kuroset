@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
+// Struktur data item yang akan ditampilkan dan dipilih untuk outfit
 type Item = {
   id_item: string;
   name: string;
@@ -20,6 +21,7 @@ export default function EditOutfitPage() {
   const router = useRouter();
   const id = params.id as string;
 
+  // State utama untuk menyimpan data outfit, item, dan status UI
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [name, setName] = useState("");
@@ -33,12 +35,14 @@ export default function EditOutfitPage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
+  // Jalankan pengambilan data saat halaman pertama kali dibuka atau id berubah
   useEffect(() => {
     if (id) {
       loadData();
     }
   }, [id]);
 
+  // Ambil detail outfit berdasarkan id dan daftar item milik user
   const loadData = async () => {
     try {
       const { data: outfit, error: outfitError } = await supabase
@@ -92,6 +96,7 @@ export default function EditOutfitPage() {
     }
   };
 
+  // Tambah atau hapus item dari daftar item yang terpilih untuk outfit
   const toggleItem = (item: Item) => {
     const exists = selectedItems.some(
       (selected) => selected.id_item === item.id_item
@@ -106,6 +111,7 @@ export default function EditOutfitPage() {
     }
   };
 
+  // Simpan perubahan outfit ke database dan perbarui relasi item
   const updateOutfit = async () => {
     try {
       setSaving(true);
@@ -158,6 +164,7 @@ export default function EditOutfitPage() {
     }
   };
 
+  // Ambil URL gambar dari storage Supabase agar bisa ditampilkan
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
@@ -171,6 +178,7 @@ export default function EditOutfitPage() {
   }
 
   return (
+    // Tampilan halaman edit outfit dengan form dan daftar item yang bisa dipilih
     <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#D5E04D]">
       {alert && (
         <Alert

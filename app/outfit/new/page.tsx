@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Footer from "@/components/Footer";
 
+// Struktur data item yang akan ditampilkan dan dipilih untuk outfit
 type Item = {
   id_item: string;
   name: string;
@@ -17,6 +18,7 @@ type Item = {
 export default function CreateOutfitPage() {
   const router = useRouter();
 
+  // State utama untuk menyimpan item, item yang dipilih, form outfit, dan status loading
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [name, setName] = useState("");
@@ -24,10 +26,12 @@ export default function CreateOutfitPage() {
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Saat halaman dibuka, ambil daftar item milik user dari database
   useEffect(() => {
     getItems();
   }, []);
 
+  // Ambil item dari tabel items berdasarkan user yang sedang login
   const getItems = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -46,6 +50,7 @@ export default function CreateOutfitPage() {
     setItems(data || []);
   };
 
+  // Tambah atau hapus item dari daftar item yang dipilih untuk outfit
   const toggleItem = (item: Item) => {
     const exists = selectedItems.some((selected) => selected.id_item === item.id_item);
 
@@ -56,6 +61,7 @@ export default function CreateOutfitPage() {
     }
   };
 
+  // Simpan outfit baru beserta relasi item ke tabel outfit_items
   const saveOutfit = async () => {
     if (!name) {
       alert("Nama outfit wajib diisi");
@@ -106,6 +112,7 @@ export default function CreateOutfitPage() {
     }
   };
 
+  // Helper untuk mengambil URL gambar item dari storage Supabase
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };

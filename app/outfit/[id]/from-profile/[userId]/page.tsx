@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
+// Struktur data item yang ada di dalam outfit
 type Item = {
   id_item: string;
   name: string;
@@ -16,6 +17,7 @@ type Item = {
   shop_url?: string | null;
 };
 
+// Struktur data outfit yang akan ditampilkan
 type Outfit = {
   id_outfit: string;
   name: string;
@@ -29,14 +31,17 @@ export default function OutfitFromProfilePage() {
   const id = params.id as string;
   const userId = params.userId as string;
 
+  // State utama untuk menyimpan data outfit, status loading, dan pesan alert
   const [outfit, setOutfit] = useState<Outfit | null>(null);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
+  // Saat halaman dibuka, ambil data outfit berdasarkan id dari URL
   useEffect(() => {
     if (id) getOutfit();
   }, [id]);
 
+  // Ambil detail outfit beserta item-item yang tergabung di dalamnya dari database
   const getOutfit = async () => {
     try {
       const { data, error } = await supabase
@@ -65,6 +70,7 @@ export default function OutfitFromProfilePage() {
         return;
       }
 
+      // Ubah format data dari hasil query Supabase menjadi bentuk yang lebih sesuai untuk UI
       const formatted: Outfit = {
         id_outfit: data.id_outfit,
         name: data.name,
@@ -82,6 +88,7 @@ export default function OutfitFromProfilePage() {
     }
   };
 
+  // Helper untuk menampilkan gambar item, baik dari URL eksternal maupun storage Supabase
   const getImageUrl = (path: string) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;

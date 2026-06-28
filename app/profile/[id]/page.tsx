@@ -8,16 +8,19 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
+// Struktur data item yang ditampilkan dalam outfit pengguna lain
 type Item = {
   name: string;
   category: string;
   image_url: string;
 };
 
+// Struktur relasi antara outfit dan item yang ada di dalamnya
 type OutfitItem = {
   items: Item | null;
 };
 
+// Struktur data profil pengguna yang akan ditampilkan di halaman publik
 type UserProfile = {
   id_user: string;
   username: string;
@@ -26,6 +29,7 @@ type UserProfile = {
   bio: string | null;
 };
 
+// Struktur data outfit publik milik pengguna lain
 type OtherUserOutfit = {
   id_outfit: string;
   id_user: string;
@@ -40,16 +44,19 @@ export default function PublicProfilePage() {
   const router = useRouter();
   const userId = params?.id as string | undefined;
 
+  // State utama untuk status loading, notifikasi, profil, dan daftar outfit publik
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [outfits, setOutfits] = useState<OtherUserOutfit[]>([]);
 
+  // Saat param id berubah, ambil data profil dan outfit publik pengguna tersebut
   useEffect(() => {
     if (!userId) return;
     loadProfile();
   }, [userId]);
 
+  // Ambil data profil pengguna dan outfit publik yang dimilikinya dari database
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -104,6 +111,7 @@ export default function PublicProfilePage() {
     }
   };
 
+  // Helper untuk mengambil URL gambar item dari storage Supabase atau URL eksternal
   const getItemImageUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -113,11 +121,7 @@ export default function PublicProfilePage() {
     return data.publicUrl;
   };
 
-  /**
-   * Fungsi Helper untuk memotong string di bagian tengah
-   * @param str Teks asli yang ingin dipotong
-   * @param maxLength Batas maksimal karakter sebelum pemotongan dilakukan
-   */
+  // Helper untuk memotong teks di tengah agar terlihat lebih rapi saat nama terlalu panjang
   const truncateMiddle = (str: string, maxLength: number = 18): string => {
     if (!str || str.length <= maxLength) return str;
     
