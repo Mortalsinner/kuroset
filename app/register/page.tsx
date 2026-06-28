@@ -40,13 +40,13 @@ export default function RegisterPage() {
 
       // Tampilkan notifikasi sukses dan arahkan ke halaman login
       setAlert({
-        message: "Registrasi berhasil! Silahkan login.",
+        message: "Check your email for account verification! 📧",
         type: "success"
       });
 
       setTimeout(() => {
         router.push("/login");
-      }, 1500);
+      }, 2000);
     } catch (error: any) {
       console.error(error);
       setAlert({
