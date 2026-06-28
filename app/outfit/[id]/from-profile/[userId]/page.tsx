@@ -26,6 +26,8 @@ type Outfit = {
   items: Item[];
 };
 
+// Halaman detail outfit publik dari profile user lain.
+// Menampilkan item-item yang terhubung ke outfit dan link creator.
 export default function OutfitFromProfilePage() {
   const params = useParams();
 
@@ -44,6 +46,7 @@ export default function OutfitFromProfilePage() {
   }, [id]);
 
   // Ambil detail outfit beserta item-item yang tergabung di dalamnya dari database
+  // Query Supabase mengekstrak relasi outfit_items -> items agar bisa ditampilkan satu-satu.
   const getOutfit = async () => {
     try {
       const { data, error } = await supabase
@@ -73,6 +76,7 @@ export default function OutfitFromProfilePage() {
       }
 
       // Ubah format data dari hasil query Supabase menjadi bentuk yang lebih sesuai untuk UI
+      // Filter Boolean digunakan untuk menghindari nilai null jika relasi kosong.
       const formatted: Outfit = {
         id_outfit: data.id_outfit,
         name: data.name,
@@ -91,6 +95,7 @@ export default function OutfitFromProfilePage() {
   };
 
   // Helper untuk menampilkan gambar item, baik dari URL eksternal maupun storage Supabase
+  // Jika path sudah berupa URL lengkap, langsung gunakan itu. Jika tidak, gunakan Supabase public URL.
   const getImageUrl = (path: string) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;

@@ -8,6 +8,7 @@ import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
 // Struktur data outfit yang akan ditampilkan di halaman daftar
+// items berisi daftar item yang bergabung dengan setiap outfit.
 type Outfit = {
   id_outfit: string;
   name: string;
@@ -17,7 +18,8 @@ type Outfit = {
 };
 
 export default function OutfitPage() {
-  // State utama untuk menyimpan daftar outfit, status loading, modal hapus, alert pesan, dan query pencarian
+  // State utama untuk menyimpan daftar outfit, status loading, modal hapus,
+  // alert pesan, dan kata kunci pencarian yang digunakan untuk memfilter daftar.
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -28,6 +30,7 @@ export default function OutfitPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Jalankan pengambilan data outfit sekali saat komponen pertama kali dirender
+  // Ini memuat semua outfit milik user dan menyiapkan data untuk tampilan.
   useEffect(() => {
     getOutfits();
   }, []);
@@ -57,6 +60,7 @@ export default function OutfitPage() {
 
       if (error) throw error;
 
+      // Ubah bentuk hasil query menjadi array outfit bersih dengan daftar item.
       const formatted = data.map((outfit: any) => ({
         id_outfit: outfit.id_outfit,
         name: outfit.name,
@@ -80,6 +84,7 @@ export default function OutfitPage() {
   };
 
   // Hapus outfit dan semua entri relasi item yang terkait sebelum memperbarui state UI
+  // Ini menjaga data relasi outfit_items tetap konsisten.
   const deleteOutfit = async () => {
     if (!deleteId) return;
 
@@ -116,6 +121,7 @@ export default function OutfitPage() {
   };
 
   // Helper untuk mengambil URL gambar item dari storage Supabase
+  // Mengonversi path internal Supabase menjadi URL publik yang dapat dipakai Image.
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
@@ -151,6 +157,7 @@ export default function OutfitPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* TOP COMPONENT / ACTION HEADER */}
+        {/* Judul halaman dan tombol navigasi utama untuk dashboard dan pembuatan outfit baru. */}
         <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase">
@@ -162,6 +169,7 @@ export default function OutfitPage() {
           </div>
           
           {/* BUTTON GROUP AREA */}
+          {/* Area tombol pendek untuk pindah ke dashboard atau membuat outfit baru. */}
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             {/* TOMBOL KEMBALI KE DASHBOARD */}
             <Link
@@ -181,6 +189,7 @@ export default function OutfitPage() {
         </header>
 
         {/* SEARCH BAR */}
+        {/* Tampilkan search bar hanya ketika ada outfit untuk difilter. */}
         {outfits.length > 0 && (
           <section className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center gap-3 w-full md:max-w-xl bg-[#F7F7F7] border-2 border-black px-4 py-2">
@@ -198,6 +207,7 @@ export default function OutfitPage() {
 
 
         {/* OUTFITS MATRIX GRID */}
+        {/* Tampilkan keadaan kosong, hasil pencarian kosong, atau grid outfit. */}
         {outfits.length === 0 ? (
           <div className="bg-white border-4 border-black p-12 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-4">
             <span className="text-5xl block">🥋</span>
@@ -228,6 +238,7 @@ export default function OutfitPage() {
                 className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 transition-transform"
               >
                 {/* PREVIEW CONTAINER (SHOWS UP TO 3 IMAGE SLICES) */}
+                {/* Tampilan mini dari hingga tiga item outfit sebagai preview visual. */}
                 <div className="grid grid-cols-3 gap-0 bg-gray-200 h-44 border-b-4 border-black relative">
                   {outfit.items.length === 0 ? (
                     <div className="col-span-3 flex items-center justify-center text-xs font-bold uppercase text-gray-400 tracking-wider">
@@ -260,6 +271,7 @@ export default function OutfitPage() {
                 </div>
 
                 {/* TEXTUAL BLOCK METADATA */}
+                {/* Judul outfit, catatan, dan status visibilitas ditampilkan di sini. */}
                 <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
                   <div className="space-y-1.5">
                     <h2 className="text-xl font-black uppercase tracking-tight line-clamp-1" title={outfit.name}>
@@ -289,6 +301,7 @@ export default function OutfitPage() {
                 </div>
 
                 {/* HARDWARE INTERACTION FOOTER */}
+                {/* Tombol aksi untuk melihat, mengedit, atau menghapus outfit. */}
                 <div className="grid grid-cols-3 border-t-4 border-black bg-black gap-0.5">
                   <Link
                     href={`/outfit/${outfit.id_outfit}`}

@@ -143,6 +143,7 @@ export default function EditItemPage() {
     }
   };
 
+  // Tampilkan state loading saat data item sedang diambil dari database
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#D5E04D] text-black font-black text-2xl tracking-widest uppercase animate-pulse">
@@ -151,8 +152,10 @@ export default function EditItemPage() {
     );
   }
 
+  // Render form edit lengkap dengan preview gambar, input field, dan tombol simpan
   return (
     <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black relative">
+      {/* Tampilkan alert apabila ada pesan sukses atau error dari proses update */}
       {alert && (
         <Alert
           message={alert.message}

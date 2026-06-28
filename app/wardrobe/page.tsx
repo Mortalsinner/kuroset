@@ -119,6 +119,7 @@ export default function WardrobePage() {
       return item.category?.toLowerCase() === selectedCategory.toLowerCase();
     });
 
+  // Tampilkan layar loading saat data wardrobe masih sedang dimuat dari Supabase
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#D5E04D] text-black font-black text-2xl tracking-wider uppercase animate-pulse">
@@ -127,6 +128,7 @@ export default function WardrobePage() {
     );
   }
 
+  // Render seluruh antarmuka wardrobe, termasuk header, pencarian, filter, dan daftar item
   return (
     <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white">
       {alert && (

@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Footer from "@/components/Footer";
 
 // Struktur data item yang akan ditampilkan dan dipilih untuk outfit
+// Ini adalah bentuk data dari setiap item wardrobe yang disimpan di Supabase.
 type Item = {
   id_item: string;
   name: string;
@@ -15,10 +16,13 @@ type Item = {
   image_url: string;
 };
 
+// Halaman pembuatan outfit memungkinkan pengguna memilih item,
+// memberi nama outfit, menambahkan catatan, dan menyimpannya ke database.
 export default function CreateOutfitPage() {
   const router = useRouter();
 
-  // State utama untuk menyimpan daftar item wardrobe, item yang dipilih, data form outfit, dan status proses penyimpanan
+  // State utama untuk menyimpan daftar item wardrobe, item yang dipilih,
+  // nilai input form, dan status loading saat menyimpan outfit baru.
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [name, setName] = useState("");
@@ -26,16 +30,20 @@ export default function CreateOutfitPage() {
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Saat halaman pertama kali dibuka, ambil daftar item wardrobe milik pengguna yang sedang login
+  // Ambil daftar item milik pengguna saat halaman dimuat.
+  // useEffect dijalankan sekali saat komponen mount.
   useEffect(() => {
     getItems();
   }, []);
 
-  // Mengambil data item dari tabel items berdasarkan id pengguna aktif untuk ditampilkan di katalog pilihan
+  // Mengambil data item dari tabel items berdasarkan id pengguna aktif
+  // untuk ditampilkan di katalog pilihan wardrobe.
   const getItems = async () => {
+    // Dapatkan user yang sedang login dari Supabase Auth.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Ambil semua item wardrobe milik user tersebut, diurutkan dari item terbaru.
     const { data, error } = await supabase
       .from("items")
       .select("*")
@@ -50,7 +58,8 @@ export default function CreateOutfitPage() {
     setItems(data || []);
   };
 
-  // Menambah atau menghapus item dari daftar pilihan saat pengguna mengklik card item
+  // Menambah atau menghapus item dari daftar pilihan saat pengguna mengklik card item.
+  // Jika item sudah dipilih, hapus dari selectedItems; jika belum, tambahkan.
   const toggleItem = (item: Item) => {
     const exists = selectedItems.some((selected) => selected.id_item === item.id_item);
 
@@ -61,7 +70,8 @@ export default function CreateOutfitPage() {
     }
   };
 
-  // Menyimpan outfit baru ke tabel outfits dan menghubungkan item yang dipilih ke tabel outfit_items
+  // Menyimpan outfit baru ke tabel outfits dan menghubungkan item yang dipilih
+  // ke tabel outfit_items untuk membentuk relasi banyak-ke-banyak.
   const saveOutfit = async () => {
     if (!name) {
       alert("Nama outfit wajib diisi");
@@ -75,9 +85,11 @@ export default function CreateOutfitPage() {
 
     try {
       setLoading(true);
+      // Pastikan user masih login sebelum melakukan penyimpanan.
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Simpan metadata outfit baru ke tabel outfits.
       const { data: outfit, error: outfitError } = await supabase
         .from("outfits")
         .insert({
@@ -91,6 +103,7 @@ export default function CreateOutfitPage() {
 
       if (outfitError) throw outfitError;
 
+      // Bangun relasi outfit-item untuk setiap item yang dipilih.
       const outfitItems = selectedItems.map((item) => ({
         id_outfit: outfit.id_outfit,
         id_item: item.id_item
@@ -112,7 +125,8 @@ export default function CreateOutfitPage() {
     }
   };
 
-  // Membuat URL gambar yang bisa ditampilkan dari path file di storage Supabase
+  // Membuat URL gambar yang bisa ditampilkan dari path file di storage Supabase.
+  // Jika item.image_url adalah path internal, Supabase mengembalikan publicUrl.
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
@@ -122,6 +136,7 @@ export default function CreateOutfitPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER SECTION */}
+        {/* Bagian judul dan navigasi halaman untuk membuat outfit baru. */}
         <header className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase">
@@ -221,6 +236,7 @@ export default function CreateOutfitPage() {
           </section>
 
           {/* OUTFIT ASSEMBLY PREVIEW PANEL */}
+          {/* Panel preview untuk menampilkan item yang sudah dipilih di canvas outfit. */}
           <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:col-span-2 min-h-[420px] flex flex-col justify-between">
             <div>
               <h2 className="text-xl font-black uppercase tracking-tight border-b-4 border-black pb-2 flex items-center gap-2">
@@ -264,6 +280,7 @@ export default function CreateOutfitPage() {
         </div>
 
         {/* CLOSET SELECTION CATALOGUE */}
+        {/* Daftar item wardrobe yang bisa dipilih atau dihapus dari outfit aktif. */}
         <section className="space-y-4 pt-4">
           <div className="border-b-4 border-black pb-2">
             <h2 className="text-2xl font-black uppercase tracking-tighter">

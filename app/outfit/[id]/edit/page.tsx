@@ -16,6 +16,8 @@ type Item = {
   image_url: string;
 };
 
+// Halaman edit outfit memuat data outfit yang sudah dibuat,
+// menampilkan item wardrobe, dan memperbarui relasi outfit_items.
 export default function EditOutfitPage() {
   const params = useParams();
   const router = useRouter();
@@ -30,6 +32,7 @@ export default function EditOutfitPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Alert untuk pesan success, error, atau info selama proses edit
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
@@ -70,6 +73,7 @@ export default function EditOutfitPage() {
       setName(outfit.name || "");
       setNotes(outfit.notes || "");
       setIsPublic(outfit.is_public || false);
+      // Siapkan pilihan item yang sudah ada di outfit saat ini
       setSelectedItems(
         outfit.outfit_items?.map((item: any) => item.items) || []
       );
@@ -97,6 +101,7 @@ export default function EditOutfitPage() {
   };
 
   // Tambah atau hapus item dari daftar yang dipilih saat user mengklik kartu item
+  // Jika item sudah ada, hapus; jika belum, tambahkan.
   const toggleItem = (item: Item) => {
     const exists = selectedItems.some(
       (selected) => selected.id_item === item.id_item
@@ -116,6 +121,7 @@ export default function EditOutfitPage() {
     try {
       setSaving(true);
 
+      // Update metadata outfit terlebih dahulu
       const { error: updateError } = await supabase
         .from("outfits")
         .update({
@@ -127,6 +133,7 @@ export default function EditOutfitPage() {
 
       if (updateError) throw updateError;
 
+      // Hapus relasi outfit_items lama sebelum memasang relasi yang baru
       const { error: deleteError } = await supabase
         .from("outfit_items")
         .delete()

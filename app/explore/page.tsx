@@ -42,6 +42,8 @@ type OtherUserOutfit = {
   outfit_likes: LikeRelation[]; // Menampung relasi user yang me-like outfit ini
 };
 
+// Halaman Explore menampilkan outfit publik yang dibuat oleh user lain
+// termasuk fitur pencarian, filter waktu, dan likes.
 export default function ExplorePage() {
   const router = useRouter();
 
@@ -72,6 +74,7 @@ export default function ExplorePage() {
   const timeLabels = { all: "All Time 🌍", today: "Today ⏰", week: "This Week 📅", month: "This Month 🌙" };
 
   // Saat halaman pertama kali dibuka, ambil session user dan muat outfit publik dari komunitas
+  // Session berguna agar kita bisa menandai outfit yang sudah di-like oleh user aktif.
   useEffect(() => {
     const initializeExplore = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -85,6 +88,7 @@ export default function ExplorePage() {
   }, []);
 
   // Mengambil outfit publik dari database dan memformat data agar mudah ditampilkan di UI
+  // Data ini memuat relasi user, item outfit, dan likes untuk setiap outfit.
   const loadExploreOutfits = async () => {
     try {
       setLoading(true);
@@ -145,6 +149,7 @@ export default function ExplorePage() {
   };
 
   // Menambah atau menghapus like pada outfit, dengan update UI yang cepat sebelum respons server
+  // Jika user sudah login, fungsi ini akan toggle like di tampilan segera.
   const toggleLike = async (outfitId: string, isLikedCurrently: boolean) => {
     if (!currentUserId) {
       setAlert({ message: "You must be logged in to like an outfit!", type: "info" });
@@ -188,6 +193,7 @@ export default function ExplorePage() {
   };
 
   // Mengubah path gambar item menjadi URL publik yang bisa ditampilkan di halaman
+  // Jika path sudah berupa URL langsung, kembalikan apa adanya.
   const getItemImageUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -198,6 +204,7 @@ export default function ExplorePage() {
   };
 
   // Memfilter dan mengurutkan outfit berdasarkan pencarian, rentang waktu, dan jumlah like
+  // Ini menghasilkan daftar outfit yang sudah disortir dan cocok dengan selected filters.
   const processedOutfits = outfits
     .filter((outfit) => {
       const matchName = outfit.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -230,6 +237,7 @@ export default function ExplorePage() {
       return sortBy === "newest" ? timeB - timeA : timeA - timeB;
     });
 
+  // Tampilkan layar loading saat outfit komunitas sedang dimuat dari Supabase
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#52D1F6] text-black font-black text-2xl tracking-wider uppercase animate-pulse">

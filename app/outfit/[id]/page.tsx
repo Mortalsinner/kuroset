@@ -26,6 +26,7 @@ type Outfit = {
   items: Item[];
 };
 
+// Halaman detail outfit menampilkan item-item yang tergabung dalam outfit tertentu.
 export default function OutfitDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -46,6 +47,7 @@ export default function OutfitDetailPage() {
   }, [id]);
 
   // Ambil detail outfit beserta item-item yang ada di dalamnya dari database
+  // Query ini mengambil outfit dan relasi outfit_items -> items untuk ditampilkan.
   const getOutfit = async () => {
     try {
       const { data, error } = await supabase
@@ -79,6 +81,7 @@ export default function OutfitDetailPage() {
       }
 
       // Ubah data hasil query menjadi format yang siap dipakai oleh UI
+      // Hanya ambil objek item yang valid dari relasi outfit_items.
       const formatted: Outfit = {
         id_outfit: data.id_outfit,
         name: data.name,
@@ -100,6 +103,7 @@ export default function OutfitDetailPage() {
   };
 
   // Helper untuk mendapatkan URL gambar item, baik dari storage Supabase maupun URL eksternal
+  // Jika path sudah berupa URL lengkap, gunakan langsung. Jika path internal, konversi ke publicUrl Supabase.
   const getImageUrl = (path: string) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -158,6 +162,7 @@ export default function OutfitDetailPage() {
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* TOP BAR / NAVIGATION */}
+        {/* Tombol kembali dan label visibilitas outfit */}
         <div className="flex justify-between items-center">
           <Link
             href="/outfit"
@@ -166,6 +171,7 @@ export default function OutfitDetailPage() {
             ⬅️ Back to List
           </Link>
           
+          {/* Tampilkan badge visibilitas outfit berdasarkan properti is_public */}
           {outfit.is_public ? (
             <div className="bg-[#D5E04D] text-black border-4 border-black text-xs font-black px-4 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-widest">
               Public 🌎
@@ -178,6 +184,7 @@ export default function OutfitDetailPage() {
         </div>
 
         {/* OUTFIT MANIFESTO / HEADER BOX */}
+        {/* Informasi nama outfit dan catatan khusus dari stylist */}
         <header className="bg-white border-4 border-black p-8 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
           <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 text-8xl font-black text-gray-100 select-none pointer-events-none uppercase">
             FIT
@@ -196,11 +203,13 @@ export default function OutfitDetailPage() {
         </header>
 
         {/* COMPACT CLOTHING PIECES PREVIEW */}
+        {/* Ringkasan visual semua item dalam outfit dengan preview grid */}
         <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="font-black text-lg uppercase tracking-tight mb-4 flex items-center gap-2">
             <span>✨</span> Outfit Grid Overview
           </h2>
           
+          {/* Jika outfit kosong, tampilkan pesan alternatif; jika ada item, render preview grid */}
           {outfit.items.length === 0 ? (
             <div className="border-4 border-dashed border-gray-300 p-8 text-center text-sm font-bold text-gray-400 uppercase">
               No items linked to this configuration
@@ -228,6 +237,7 @@ export default function OutfitDetailPage() {
         </section>
 
         {/* DETAILED PIECES BREAKDOWN */}
+        {/* Tampilkan detail setiap item lengkap dengan gambar, kategori, dan link pembelian */}
         <section className="space-y-4">
           <h2 className="text-2xl font-black uppercase tracking-tighter text-black [text-shadow:1px_1px_0px_#fff]">
             ⚙️ Inside The Outfit ({outfit.items.length})
@@ -260,6 +270,7 @@ export default function OutfitDetailPage() {
                 
                 <div className="p-4 pt-0 space-y-3 w-full">
                   {/* TOMBOL LINK PEMBELIAN */}
+                  {/* Jika ada shop_url, tampilkan tombol pembelian; jika tidak, tampilkan status tidak tersedia */}
                   {item.shop_url ? (
                     <a
                       href={item.shop_url}

@@ -11,7 +11,10 @@ import Footer from "@/components/Footer";
 export default function EditProfilePage() {
   const router = useRouter();
 
-  // State utama untuk status loading, proses simpan, pesan alert, dan data form profil
+  // Halaman edit profil memuat data user saat ini, memungkinkan pengguna
+  // mengubah nama, username, bio, serta mengupload avatar baru.
+  // State utama untuk status loading halaman, proses penyimpanan, pesan alert,
+  // nilai form profil, dan preview avatar sementara.
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
@@ -25,7 +28,8 @@ export default function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
 
-  // Jalankan getProfile sekali saat halaman pertama kali dimuat
+  // Jalankan getProfile sekali saat halaman pertama kali dimuat.
+  // Ini akan mengisi form dengan data profil user yang sedang login.
   useEffect(() => {
     getProfile();
   }, []);
@@ -33,6 +37,7 @@ export default function EditProfilePage() {
   // Ambil data profil dari Supabase untuk mengisi form edit dan tampilkan preview avatar jika ada
   const getProfile = async () => {
     try {
+      // Ambil informasi user yang sedang login dari Supabase Auth.
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -59,6 +64,7 @@ export default function EditProfilePage() {
       setAvatarUrl(data.avatar_url || "");
 
       if (data.avatar_url) {
+        // Ambil URL publik avatar dari Supabase storage untuk preview.
         const image = supabase.storage
           .from("profile-images")
           .getPublicUrl(data.avatar_url).data.publicUrl;
@@ -72,7 +78,8 @@ export default function EditProfilePage() {
     }
   };
 
-  // Saat user memilih file avatar baru, simpan file sementara dan tampilkan preview pada UI
+  // Saat user memilih file avatar baru, simpan file sementara dan tampilkan preview pada UI.
+  // Ini belum mengupload file ke Supabase sampai handleSave dipanggil.
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -82,7 +89,8 @@ export default function EditProfilePage() {
     setPreview(URL.createObjectURL(file));
   };
 
-  // Simpan perubahan profil ke Supabase, upload avatar baru jika diperlukan, dan tampilkan feedback ke user
+  // Simpan perubahan profil ke Supabase, upload avatar baru jika diperlukan,
+  // dan tampilkan feedback ke user.
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -91,6 +99,7 @@ export default function EditProfilePage() {
       let newAvatar = avatarUrl;
 
       if (avatarFile) {
+        // Upload file avatar baru ke bucket profile-images.
         const ext = avatarFile.name.split(".").pop();
         const fileName = `${userId}/avatar-${Date.now()}.${ext}`;
 
@@ -126,6 +135,7 @@ export default function EditProfilePage() {
 
       setAlert({ message: "Profile berhasil diperbarui ✨", type: "success" });
       
+      // Beri pengguna sedikit feedback sebelum mengarahkan kembali ke halaman profil.
       setTimeout(() => {
         router.push("/profile");
       }, 1500);
@@ -148,7 +158,7 @@ export default function EditProfilePage() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white relative">
-      
+      {/* Tampilkan notifikasi alert jika ada pesan sukses atau error */}
       {alert && (
         <Alert
           message={alert.message}
@@ -170,6 +180,7 @@ export default function EditProfilePage() {
         </div>
 
         {/* PROFILE FORM CONTAINER */}
+        {/* Form edit profil dengan avatar preview, field input, dan tombol simpan. */}
         <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
           
           <div>
@@ -182,6 +193,7 @@ export default function EditProfilePage() {
           </div>
 
           {/* AVATAR PREVIEW & UPLOAD */}
+          {/* Memperlihatkan preview avatar, dan mengizinkan pengguna memilih file baru. */}
           <div className="flex flex-col items-center justify-center gap-4 bg-gray-50 p-4 border-2 border-dashed border-black">
             {preview ? (
               <div className="relative w-32 h-32 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white overflow-hidden">
@@ -210,6 +222,7 @@ export default function EditProfilePage() {
           </div>
 
           {/* FORM FIELDS */}
+          {/* Input untuk data profil yang dapat diedit kecuali email yang terkunci. */}
           <div className="space-y-4">
             {/* EMAIL (DISABLED) */}
             <div>
@@ -257,6 +270,7 @@ export default function EditProfilePage() {
           </div>
 
           {/* SAVE BUTTON */}
+          {/* Jalankan handleSave saat pengguna mengonfirmasi perubahan profil. */}
           <button
             onClick={handleSave}
             disabled={saving}

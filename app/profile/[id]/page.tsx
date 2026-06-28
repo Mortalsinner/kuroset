@@ -21,6 +21,7 @@ type OutfitItem = {
 };
 
 // Struktur data profil pengguna yang akan ditampilkan di halaman publik
+// Ini adalah metadata dasar yang dibutuhkan untuk render header profil.
 type UserProfile = {
   id_user: string;
   username: string;
@@ -30,6 +31,7 @@ type UserProfile = {
 };
 
 // Struktur data outfit publik milik pengguna lain
+// Setiap outfit memuat relasi outfit_items ke daftar item yang tampil di preview.
 type OtherUserOutfit = {
   id_outfit: string;
   id_user: string;
@@ -44,13 +46,15 @@ export default function PublicProfilePage() {
   const router = useRouter();
   const userId = params?.id as string | undefined;
 
-  // State utama untuk status loading halaman, alert notifikasi, profil pengguna, dan daftar outfit publik
+  // State utama untuk status loading halaman, alert notifikasi,
+  // profil pengguna publik, dan daftar outfit yang tersedia untuk ditampilkan.
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [outfits, setOutfits] = useState<OtherUserOutfit[]>([]);
 
-  // Jalankan loadProfile setiap kali userId pada route berubah
+  // Jalankan loadProfile setiap kali userId pada route berubah.
+  // Ini memastikan halaman selalu menampilkan data untuk user yang sedang dituju.
   useEffect(() => {
     if (!userId) return;
     loadProfile();
@@ -62,6 +66,7 @@ export default function PublicProfilePage() {
       setLoading(true);
 
       // Ambil data profil user dari tabel users
+      // Query ini hanya memuat kolom publik yang diperlukan untuk header profil.
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("id_user, username, full_name, avatar_url, bio")
@@ -114,6 +119,7 @@ export default function PublicProfilePage() {
   };
 
   // Helper untuk mengambil URL gambar dari storage Supabase atau langsung menggunakan URL eksternal
+  // Jika path adalah URL lengkap, kembalikan langsung tanpa query storage.
   const getItemImageUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -126,7 +132,8 @@ export default function PublicProfilePage() {
     return data.publicUrl;
   };
 
-  // Helper untuk memotong teks panjang di tengah, menjaga bagian depan dan belakang tetap terlihat
+  // Helper untuk memotong teks panjang di tengah, menjaga bagian depan dan belakang tetap terlihat.
+  // Ini berguna untuk menampilkan username atau nama panjang tanpa memecah layout.
   const truncateMiddle = (str: string, maxLength: number = 18): string => {
     if (!str || str.length <= maxLength) return str;
     

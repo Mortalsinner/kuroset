@@ -97,8 +97,10 @@ export default function AddItemPage() {
     }
   };
 
+  // Render halaman form untuk menambahkan item baru ke wardrobe
   return (
     <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#D5E04D] selection:text-black">
+      {/* Tampilkan pesan alert saat proses tambah item berhasil atau gagal */}
       {alert && (
         <Alert
           message={alert.message}

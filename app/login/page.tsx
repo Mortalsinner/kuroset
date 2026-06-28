@@ -14,25 +14,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  // State untuk menampilkan pesan sukses atau error saat login berlangsung
+  // Menyimpan pesan notifikasi yang muncul ketika login sukses atau gagal
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
 
   // Fungsi utama untuk memproses login menggunakan Supabase Auth
+  // Mencegah form submit default, memanggil Supabase, lalu navigasi ke dashboard bila berhasil.
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       // Aktifkan status loading saat proses login sedang berjalan
       setLoading(true);
+      // Panggil Supabase untuk melakukan sign in dengan email dan password
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        // Tampilkan error jika kredensial tidak valid
         setAlert({
           message: "Invalid email or password.",
           type: "error",
@@ -40,6 +43,7 @@ export default function LoginPage() {
         return;
       }
 
+      // Jika login berhasil, berikan notifikasi sukses sebelum redirect
       setAlert({
         message: "We're taking you to your dashboard.",
         type: "success",
@@ -55,12 +59,14 @@ export default function LoginPage() {
         type: "error",
       });
     } finally {
+      // Pastikan loading dimatikan setelah proses selesai, baik berhasil maupun gagal
       setLoading(false);
     }
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black">
+      {/* Tampilkan alert jika ada pesan error atau sukses dari proses login */}
       {alert && (
         <Alert
           message={alert.message}

@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 export default function RegisterPage() {
   const router = useRouter();
 
-  // State untuk input email, password, status loading saat request, dan pesan alert
+  // State untuk menyimpan input form, status loading saat submit, dan pesan alert jika ada.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,7 @@ export default function RegisterPage() {
   } | null>(null);
 
   // Fungsi untuk mendaftarkan akun baru ke Supabase Auth
+  // Mengirim email dan password lalu menampilkan feedback ke user.
   const handleRegister = async () => {
     try {
       setLoading(true);
@@ -30,6 +31,7 @@ export default function RegisterPage() {
         password
       });
 
+      // Jika Supabase mengembalikan error, tampilkan pesan ke user.
       if (error) {
         setAlert({
           message: error.message,
@@ -39,6 +41,7 @@ export default function RegisterPage() {
       }
 
       // Tampilkan notifikasi sukses dan arahkan ke halaman login
+      // Memberi waktu singkat agar user sempat membaca pesan verifikasi.
       setAlert({
         message: "Check your email for account verification! 📧",
         type: "success"
@@ -60,6 +63,7 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-black font-sans selection:bg-[#F652A0] selection:text-white">
+      {/* Tampilkan alert jika terjadi error atau sukses registrasi */}
       {alert && (
         <Alert
           message={alert.message}
@@ -69,6 +73,7 @@ export default function RegisterPage() {
       )}
 
       {/* REGISTRATION CARD COMPONENT */}
+      {/* Form pendaftaran dengan input email, password, dan tombol submit. */}
       <div className="w-full max-w-md bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6 relative">
         
         {/* HEADER BRANDING AREA */}
@@ -82,6 +87,7 @@ export default function RegisterPage() {
         </div>
 
         {/* INPUT DATA BLOCK: EMAIL */}
+        {/* Email digunakan sebagai credential login Supabase. */}
         <div className="space-y-1.5">
           <label className="text-xs font-black uppercase tracking-wide block">Email Address</label>
           <input
@@ -94,6 +100,7 @@ export default function RegisterPage() {
         </div>
 
         {/* INPUT DATA BLOCK: PASSWORD */}
+        {/* Password tidak disimpan di UI, hanya dikirim ke Supabase untuk pembuatan akun. */}
         <div className="space-y-1.5">
           <label className="text-xs font-black uppercase tracking-wide block">Secure Password</label>
           <input
@@ -106,6 +113,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ACTION BUTTON TRIGGER */}
+        {/* Tombol ini memicu proses registrasi dan menonaktifkan form saat loading. */}
         <button
           onClick={handleRegister}
           disabled={loading}

@@ -25,6 +25,7 @@ type OutfitItem = {
 };
 
 // Helper untuk memotong nama yang terlalu panjang agar tampil lebih rapi
+// Fungsi ini menyisipkan '...' di tengah nama yang melebihi batas panjang.
 const truncateMiddle = (str: string, maxLength: number = 18): string => {
     if (!str || str.length <= maxLength) return str;
     
@@ -47,16 +48,18 @@ type Outfit = {
 export default function ViewProfilePage() {
   const router = useRouter();
 
-  // State utama untuk status loading, alert notifikasi, dan data profil user
+  // State utama untuk status loading dan alert notifikasi
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
-  // State untuk menyimpan data profil pengguna, daftar item wardrobe, dan daftar outfit
+  // State untuk menyimpan data profil pengguna saat ini,
+  // daftar item wardrobe, dan daftar outfit milik pengguna.
   const [profile, setProfile] = useState<any | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
 
-  // Jalankan loadAll sekali ketika halaman pertama kali dirender
+  // Jalankan loadAll sekali ketika halaman pertama kali dirender.
+  // Ini memicu fetch data profil, wardrobe, dan outfit user yang sedang login.
   useEffect(() => {
     loadAll();
   }, []);
@@ -66,6 +69,7 @@ export default function ViewProfilePage() {
     try {
       setLoading(true);
 
+      // Pastikan user sudah login sebelum mengambil data profil.
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
@@ -84,7 +88,7 @@ export default function ViewProfilePage() {
       if (userError) throw userError;
       setProfile(userData || null);
 
-      // Ambil semua item wardrobe user
+      // Ambil semua item wardrobe user untuk menampilkan koleksi pribadi.
       const { data: itemsData, error: itemsError } = await supabase
         .from("items")
         .select("*")
@@ -130,11 +134,13 @@ export default function ViewProfilePage() {
   };
 
   // Helper untuk mengambil URL gambar item wardrobe dari storage Supabase
+  // Mengonversi path internal menjadi public URL yang dapat digunakan Image.
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
-  // Helper untuk mengambil URL avatar profil dari storage Supabase atau menggunakan URL eksternal jika sudah diberikan
+  // Helper untuk mengambil URL avatar profil dari storage Supabase atau menggunakan URL eksternal jika sudah diberikan.
+  // Jika avatar disimpan sebagai path internal, ubah menjadi public URL.
   const getAvatarUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -155,6 +161,7 @@ export default function ViewProfilePage() {
       {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
 
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Navigasi cepat ke dashboard atau halaman edit profil */}
          <div className="flex gap-2">
          <Link href="/dashboard" className="bg-white text-black font-black border-4 border-black px-4 py-2 text-xs uppercase">⬅️ Dashboard</Link>
           <Link href="/profile/edit" className="bg-[#D5E04D] text-black font-black border-4 border-black px-4 py-2 text-xs uppercase">Edit Profile</Link>
@@ -175,11 +182,13 @@ export default function ViewProfilePage() {
           </div>
         </header>
 
+        {/* Bagian About menampilkan bio pengguna jika tersedia */}
         <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-lg font-black uppercase mb-2">About</h2>
           <p className="text-sm font-bold text-gray-700">{profile?.bio || "No bio provided."}</p>
         </section>
 
+        {/* Daftar outfit pengguna yang pernah dibuat */}
         <section>
           <h3 className="text-xl font-black uppercase mb-3">My Outfits</h3>
           {outfits.length === 0 ? (
@@ -211,6 +220,7 @@ export default function ViewProfilePage() {
           )}
         </section>
 
+        {/* Daftar item wardrobe pengguna untuk referensi look dan outfit */}
         <section>
           <h3 className="text-xl font-black uppercase mb-3">My Wardrobe</h3>
           {items.length === 0 ? (

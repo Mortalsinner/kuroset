@@ -15,6 +15,7 @@ type Item = {
   image_url: string;
 };
 
+// Dashboard page menampilkan ringkasan profil user, koleksi wardrobe, dan outfit count
 export default function DashboardPage() {
   const router = useRouter();
 
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   }, []);
 
   // Mengambil profil user, item wardrobe, dan jumlah outfit dari database
+  // 1) autentikasi user saat ini, 2) load profil, 3) load item wardrobe, 4) hitung total outfit
   const loadDashboard = async () => {
     try {
       const {
@@ -59,6 +61,7 @@ export default function DashboardPage() {
           ascending: false,
         });
 
+      // Simpan semua item wardrobe milik user ke state untuk ditampilkan di dashboard
       setItems(itemData || []);
 
       const { count } = await supabase
@@ -81,6 +84,7 @@ export default function DashboardPage() {
   };
 
   // Proses logout user dan arahkan kembali ke halaman login
+  // Tutup dialog konfirmasi, tampilkan notifikasi, lalu pindah ke halaman login
   const logout = async () => {
     await supabase.auth.signOut();
     setConfirmLogoutOpen(false);
@@ -94,6 +98,7 @@ export default function DashboardPage() {
     }, 1000);
   };
 
+  // Buka dan tutup modal konfirmasi logout sebelum menandatangani keluar
   const openLogoutConfirmation = () => {
     setConfirmLogoutOpen(true);
   };
@@ -102,7 +107,7 @@ export default function DashboardPage() {
     setConfirmLogoutOpen(false);
   };
 
-  // Mengubah path gambar item menjadi URL publik agar bisa ditampilkan
+  // Mengubah path gambar item menjadi URL publik agar bisa ditampilkan di komponen Image
   const getImageUrl = (path: string) => {
     return supabase.storage
       .from("wardrobe-images")
@@ -118,6 +123,7 @@ export default function DashboardPage() {
       .getPublicUrl(profile.avatar_url).data.publicUrl;
   };
 
+  // Tampilkan layar loading sementara data dashboard sedang diambil
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#D5E04D] text-black font-bold text-2xl">
