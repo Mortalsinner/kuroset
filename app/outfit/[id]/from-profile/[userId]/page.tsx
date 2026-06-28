@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
-// Struktur data item yang ada di dalam outfit
+// Struktur data item yang ada di dalam outfit yang akan ditampilkan
 type Item = {
   id_item: string;
   name: string;
@@ -17,7 +17,7 @@ type Item = {
   shop_url?: string | null;
 };
 
-// Struktur data outfit yang akan ditampilkan
+// Struktur data outfit yang akan ditampilkan beserta daftar item-nya
 type Outfit = {
   id_outfit: string;
   name: string;
@@ -28,6 +28,8 @@ type Outfit = {
 
 export default function OutfitFromProfilePage() {
   const params = useParams();
+
+  // Ambil id outfit dan id user pemilik profil dari URL parameter
   const id = params.id as string;
   const userId = params.userId as string;
 
@@ -36,7 +38,7 @@ export default function OutfitFromProfilePage() {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
-  // Saat halaman dibuka, ambil data outfit berdasarkan id dari URL
+  // Saat halaman dibuka, ambil data outfit berdasarkan id yang ada di URL
   useEffect(() => {
     if (id) getOutfit();
   }, [id]);

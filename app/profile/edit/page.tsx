@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 export default function EditProfilePage() {
   const router = useRouter();
 
-  // State utama untuk status loading, penyimpanan, notifikasi, dan data form profil
+  // State utama untuk status loading, proses simpan, pesan alert, dan data form profil
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
@@ -25,12 +25,12 @@ export default function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
 
-  // Saat halaman dibuka, ambil data profil user yang sedang login
+  // Jalankan getProfile sekali saat halaman pertama kali dimuat
   useEffect(() => {
     getProfile();
   }, []);
 
-  // Ambil data profil dari tabel users dan siapkan preview avatar
+  // Ambil data profil dari Supabase untuk mengisi form edit dan tampilkan preview avatar jika ada
   const getProfile = async () => {
     try {
       const {
@@ -72,7 +72,7 @@ export default function EditProfilePage() {
     }
   };
 
-  // Saat user memilih file avatar baru, simpan file dan tampilkan preview sementara
+  // Saat user memilih file avatar baru, simpan file sementara dan tampilkan preview pada UI
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -82,7 +82,7 @@ export default function EditProfilePage() {
     setPreview(URL.createObjectURL(file));
   };
 
-  // Simpan perubahan profil, upload avatar baru jika ada, lalu update data user
+  // Simpan perubahan profil ke Supabase, upload avatar baru jika diperlukan, dan tampilkan feedback ke user
   const handleSave = async () => {
     try {
       setSaving(true);

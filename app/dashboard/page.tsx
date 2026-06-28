@@ -18,6 +18,7 @@ type Item = {
 export default function DashboardPage() {
   const router = useRouter();
 
+  // State untuk menampilkan nama user, profil, item, jumlah outfit, dan status loading
   const [username, setUsername] = useState("User");
   const [profile, setProfile] = useState<any>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -26,10 +27,12 @@ export default function DashboardPage() {
   const [alert, setAlert] = useState<any>(null);
   const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
 
+  // Saat halaman dibuka, ambil data dashboard milik user yang sedang login
   useEffect(() => {
     loadDashboard();
   }, []);
 
+  // Mengambil profil user, item wardrobe, dan jumlah outfit dari database
   const loadDashboard = async () => {
     try {
       const {
@@ -77,6 +80,7 @@ export default function DashboardPage() {
     }
   };
 
+  // Proses logout user dan arahkan kembali ke halaman login
   const logout = async () => {
     await supabase.auth.signOut();
     setConfirmLogoutOpen(false);
@@ -98,12 +102,14 @@ export default function DashboardPage() {
     setConfirmLogoutOpen(false);
   };
 
+  // Mengubah path gambar item menjadi URL publik agar bisa ditampilkan
   const getImageUrl = (path: string) => {
     return supabase.storage
       .from("wardrobe-images")
       .getPublicUrl(path).data.publicUrl;
   };
 
+  // Mengubah path avatar profile menjadi URL publik agar bisa ditampilkan
   const getAvatar = () => {
     if (!profile?.avatar_url) return null;
 

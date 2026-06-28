@@ -107,6 +107,7 @@ export default function OutfitDetailPage() {
     return data.publicUrl;
   };
 
+  // Tampilkan layar loading saat data outfit sedang diambil dari database
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#F652A0] text-black font-black text-2xl tracking-wider uppercase animate-pulse">
@@ -115,6 +116,7 @@ export default function OutfitDetailPage() {
     );
   }
 
+  // Tampilkan pesan khusus jika outfit yang dicari tidak ditemukan atau data kosong
   if (!outfit) {
     return (
       <main className="min-h-screen bg-gray-50 p-6 flex items-center justify-center text-black font-sans">
@@ -142,6 +144,7 @@ export default function OutfitDetailPage() {
     );
   }
 
+  // Render halaman utama outfit setelah data berhasil dimuat
   return (
     <main className="min-h-screen bg-gray-50 p-6 text-black font-sans selection:bg-[#52D1F6] selection:text-black">
       {alert && (

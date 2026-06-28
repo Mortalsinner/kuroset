@@ -47,20 +47,21 @@ type Outfit = {
 export default function ViewProfilePage() {
   const router = useRouter();
 
-  // State utama untuk status loading, alert, profil, wardrobe, dan outfit user
+  // State utama untuk status loading, alert notifikasi, dan data profil user
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
+  // State untuk menyimpan data profil pengguna, daftar item wardrobe, dan daftar outfit
   const [profile, setProfile] = useState<any | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
 
-  // Saat halaman dibuka, ambil semua data profil, wardrobe, dan outfit milik user
+  // Jalankan loadAll sekali ketika halaman pertama kali dirender
   useEffect(() => {
     loadAll();
   }, []);
 
-  // Ambil data user, item wardrobe, dan outfit dari database
+  // Load semua data profil, wardrobe item, dan outfit user dari Supabase
   const loadAll = async () => {
     try {
       setLoading(true);
@@ -73,6 +74,7 @@ export default function ViewProfilePage() {
 
       const userId = user.id;
 
+      // Ambil data profil user dari tabel users
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("id_user, username, full_name, avatar_url, bio, email")
@@ -82,6 +84,7 @@ export default function ViewProfilePage() {
       if (userError) throw userError;
       setProfile(userData || null);
 
+      // Ambil semua item wardrobe user
       const { data: itemsData, error: itemsError } = await supabase
         .from("items")
         .select("*")
@@ -126,12 +129,12 @@ export default function ViewProfilePage() {
     }
   };
 
-  // Helper untuk mengambil URL gambar item dari storage Supabase
+  // Helper untuk mengambil URL gambar item wardrobe dari storage Supabase
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
-  // Helper untuk mengambil URL avatar profil dari storage Supabase
+  // Helper untuk mengambil URL avatar profil dari storage Supabase atau menggunakan URL eksternal jika sudah diberikan
   const getAvatarUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;

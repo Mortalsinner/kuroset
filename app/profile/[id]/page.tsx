@@ -44,23 +44,24 @@ export default function PublicProfilePage() {
   const router = useRouter();
   const userId = params?.id as string | undefined;
 
-  // State utama untuk status loading, notifikasi, profil, dan daftar outfit publik
+  // State utama untuk status loading halaman, alert notifikasi, profil pengguna, dan daftar outfit publik
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [outfits, setOutfits] = useState<OtherUserOutfit[]>([]);
 
-  // Saat param id berubah, ambil data profil dan outfit publik pengguna tersebut
+  // Jalankan loadProfile setiap kali userId pada route berubah
   useEffect(() => {
     if (!userId) return;
     loadProfile();
   }, [userId]);
 
-  // Ambil data profil pengguna dan outfit publik yang dimilikinya dari database
+  // Load profile publik dan outfit publik user dari Supabase saat route dengan userId tersedia
   const loadProfile = async () => {
     try {
       setLoading(true);
 
+      // Ambil data profil user dari tabel users
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("id_user, username, full_name, avatar_url, bio")
@@ -71,6 +72,7 @@ export default function PublicProfilePage() {
 
       setProfile(userData || null);
 
+      // Ambil daftar outfit publik user yang berelasi dengan item
       const { data, error } = await supabase
         .from("outfits")
         .select(`
@@ -111,7 +113,7 @@ export default function PublicProfilePage() {
     }
   };
 
-  // Helper untuk mengambil URL gambar item dari storage Supabase atau URL eksternal
+  // Helper untuk mengambil URL gambar dari storage Supabase atau langsung menggunakan URL eksternal
   const getItemImageUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -121,7 +123,7 @@ export default function PublicProfilePage() {
     return data.publicUrl;
   };
 
-  // Helper untuk memotong teks di tengah agar terlihat lebih rapi saat nama terlalu panjang
+  // Helper untuk memotong teks panjang di tengah, menjaga bagian depan dan belakang tetap terlihat
   const truncateMiddle = (str: string, maxLength: number = 18): string => {
     if (!str || str.length <= maxLength) return str;
     

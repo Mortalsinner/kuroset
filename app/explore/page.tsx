@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import Alert from "@/components/Alert";
 import Footer from "@/components/Footer";
 
+// Struktur item yang dipakai untuk menampilkan pakaian pada tiap outfit
 type Item = {
   name: string;
   category: string;
@@ -29,6 +30,7 @@ type LikeRelation = {
   id_user: string;
 };
 
+// Struktur data outfit publik dari user lain beserta relasinya
 type OtherUserOutfit = {
   id_outfit: string;
   id_user: string;
@@ -42,6 +44,8 @@ type OtherUserOutfit = {
 
 export default function ExplorePage() {
   const router = useRouter();
+
+  // State utama untuk menyimpan daftar outfit publik, status loading, pencarian, dan user aktif
   const [outfits, setOutfits] = useState<OtherUserOutfit[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -54,6 +58,7 @@ export default function ExplorePage() {
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
 
+  // State untuk menampilkan pesan notifikasi saat ada error atau aksi berhasil
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
@@ -66,8 +71,8 @@ export default function ExplorePage() {
   };
   const timeLabels = { all: "All Time 🌍", today: "Today ⏰", week: "This Week 📅", month: "This Month 🌙" };
 
+  // Saat halaman pertama kali dibuka, ambil session user dan muat outfit publik dari komunitas
   useEffect(() => {
-    // Ambil session user aktif dan muat koleksi komunitas
     const initializeExplore = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -79,6 +84,7 @@ export default function ExplorePage() {
     initializeExplore();
   }, []);
 
+  // Mengambil outfit publik dari database dan memformat data agar mudah ditampilkan di UI
   const loadExploreOutfits = async () => {
     try {
       setLoading(true);
@@ -138,6 +144,7 @@ export default function ExplorePage() {
     }
   };
 
+  // Menambah atau menghapus like pada outfit, dengan update UI yang cepat sebelum respons server
   const toggleLike = async (outfitId: string, isLikedCurrently: boolean) => {
     if (!currentUserId) {
       setAlert({ message: "You must be logged in to like an outfit!", type: "info" });
@@ -180,6 +187,7 @@ export default function ExplorePage() {
     }
   };
 
+  // Mengubah path gambar item menjadi URL publik yang bisa ditampilkan di halaman
   const getItemImageUrl = (path: string | undefined | null) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
@@ -189,6 +197,7 @@ export default function ExplorePage() {
     return data.publicUrl;
   };
 
+  // Memfilter dan mengurutkan outfit berdasarkan pencarian, rentang waktu, dan jumlah like
   const processedOutfits = outfits
     .filter((outfit) => {
       const matchName = outfit.name.toLowerCase().includes(searchQuery.toLowerCase());

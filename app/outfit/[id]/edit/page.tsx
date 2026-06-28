@@ -21,7 +21,7 @@ export default function EditOutfitPage() {
   const router = useRouter();
   const id = params.id as string;
 
-  // State utama untuk menyimpan data outfit, item, dan status UI
+  // State utama untuk menyimpan data outfit, item yang tersedia, item yang dipilih, dan status UI
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [name, setName] = useState("");
@@ -35,14 +35,14 @@ export default function EditOutfitPage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  // Jalankan pengambilan data saat halaman pertama kali dibuka atau id berubah
+  // Saat halaman dibuka, ambil data outfit yang sedang diedit berdasarkan id di URL
   useEffect(() => {
     if (id) {
       loadData();
     }
   }, [id]);
 
-  // Ambil detail outfit berdasarkan id dan daftar item milik user
+  // Ambil detail outfit beserta relasi item yang sudah terhubung, lalu isi form dengan data lama
   const loadData = async () => {
     try {
       const { data: outfit, error: outfitError } = await supabase
@@ -96,7 +96,7 @@ export default function EditOutfitPage() {
     }
   };
 
-  // Tambah atau hapus item dari daftar item yang terpilih untuk outfit
+  // Tambah atau hapus item dari daftar yang dipilih saat user mengklik kartu item
   const toggleItem = (item: Item) => {
     const exists = selectedItems.some(
       (selected) => selected.id_item === item.id_item
@@ -111,7 +111,7 @@ export default function EditOutfitPage() {
     }
   };
 
-  // Simpan perubahan outfit ke database dan perbarui relasi item
+  // Simpan perubahan outfit ke database dan perbarui relasi item yang terhubung
   const updateOutfit = async () => {
     try {
       setSaving(true);
@@ -164,7 +164,7 @@ export default function EditOutfitPage() {
     }
   };
 
-  // Ambil URL gambar dari storage Supabase agar bisa ditampilkan
+  // Ubah path gambar item menjadi URL publik agar bisa ditampilkan di halaman
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };

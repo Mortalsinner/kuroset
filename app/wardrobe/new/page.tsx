@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 export default function AddItemPage() {
   const router = useRouter();
 
-  // State form untuk menyimpan data item yang akan ditambahkan
+  // State form untuk menyimpan input item baru yang akan diunggah ke wardrobe
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [color, setColor] = useState("");
@@ -20,7 +20,7 @@ export default function AddItemPage() {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // State untuk menampilkan pesan sukses, error, atau info kepada pengguna
+  // State untuk menampilkan pesan feedback sukses atau error ke pengguna
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
@@ -52,7 +52,7 @@ export default function AddItemPage() {
         return;
       }
 
-      // Siapkan nama file unik untuk gambar agar tidak bentrok dengan item lain
+      // Buat nama file unik untuk menyimpan gambar item di storage Supabase
       const fileExt = image.name.split(".").pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
@@ -62,7 +62,7 @@ export default function AddItemPage() {
 
       if (uploadError) throw uploadError;
 
-      // Simpan data item ke tabel items setelah gambar berhasil diupload
+      // Setelah upload selesai, simpan record item ke tabel items
       const { error: insertError } = await supabase
         .from("items")
         .insert({
@@ -82,6 +82,7 @@ export default function AddItemPage() {
         type: "success"
       });
 
+      // Redirect ke halaman wardrobe setelah berhasil menambahkan item
       setTimeout(() => {
         router.push("/wardrobe");
       }, 1000);

@@ -13,7 +13,7 @@ export default function EditItemPage() {
   const params = useParams();
   const id_item = params.id_item as string;
 
-  // State utama untuk status loading, form item, preview gambar, dan pesan alert
+  // State utama untuk status loading, proses penyimpanan, field form item, dan alert
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -32,14 +32,14 @@ export default function EditItemPage() {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  // Saat halaman dibuka, ambil data item berdasarkan id yang ada di URL
+  // Jalankan fetchItem ketika id_item tersedia, untuk mengisi form edit
   useEffect(() => {
     if (id_item) {
       fetchItem();
     }
   }, [id_item]);
 
-  // Ambil detail item dari database dan siapkan nilai form serta preview gambar
+  // Ambil detail item dari database dan siapkan nilai form serta preview gambar yang sudah tersimpan
   const fetchItem = async () => {
     try {
       const { data, error } = await supabase
@@ -72,7 +72,7 @@ export default function EditItemPage() {
     }
   };
 
-  // Saat user memilih gambar baru, simpan file dan tampilkan preview sementara
+  // Saat user memilih gambar baru, simpan file sementara di state dan tampilkan preview lokal
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -81,7 +81,7 @@ export default function EditItemPage() {
     setPreview(URL.createObjectURL(file));
   };
 
-  // Simpan perubahan item, upload gambar baru jika ada, lalu update data di database
+  // Simpan perubahan item, upload gambar baru jika diperlukan, dan update record item di Supabase
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 

@@ -18,7 +18,7 @@ type Item = {
 export default function CreateOutfitPage() {
   const router = useRouter();
 
-  // State utama untuk menyimpan item, item yang dipilih, form outfit, dan status loading
+  // State utama untuk menyimpan daftar item wardrobe, item yang dipilih, data form outfit, dan status proses penyimpanan
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [name, setName] = useState("");
@@ -26,12 +26,12 @@ export default function CreateOutfitPage() {
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Saat halaman dibuka, ambil daftar item milik user dari database
+  // Saat halaman pertama kali dibuka, ambil daftar item wardrobe milik pengguna yang sedang login
   useEffect(() => {
     getItems();
   }, []);
 
-  // Ambil item dari tabel items berdasarkan user yang sedang login
+  // Mengambil data item dari tabel items berdasarkan id pengguna aktif untuk ditampilkan di katalog pilihan
   const getItems = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -50,7 +50,7 @@ export default function CreateOutfitPage() {
     setItems(data || []);
   };
 
-  // Tambah atau hapus item dari daftar item yang dipilih untuk outfit
+  // Menambah atau menghapus item dari daftar pilihan saat pengguna mengklik card item
   const toggleItem = (item: Item) => {
     const exists = selectedItems.some((selected) => selected.id_item === item.id_item);
 
@@ -61,7 +61,7 @@ export default function CreateOutfitPage() {
     }
   };
 
-  // Simpan outfit baru beserta relasi item ke tabel outfit_items
+  // Menyimpan outfit baru ke tabel outfits dan menghubungkan item yang dipilih ke tabel outfit_items
   const saveOutfit = async () => {
     if (!name) {
       alert("Nama outfit wajib diisi");
@@ -112,7 +112,7 @@ export default function CreateOutfitPage() {
     }
   };
 
-  // Helper untuk mengambil URL gambar item dari storage Supabase
+  // Membuat URL gambar yang bisa ditampilkan dari path file di storage Supabase
   const getImageUrl = (path: string) => {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };

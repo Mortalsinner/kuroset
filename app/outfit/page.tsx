@@ -17,7 +17,7 @@ type Outfit = {
 };
 
 export default function OutfitPage() {
-  // State utama untuk menyimpan daftar outfit, status loading, modal hapus, alert, dan pencarian
+  // State utama untuk menyimpan daftar outfit, status loading, modal hapus, alert pesan, dan query pencarian
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -27,12 +27,12 @@ export default function OutfitPage() {
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Saat halaman dibuka, ambil semua outfit milik user yang sedang login
+  // Jalankan pengambilan data outfit sekali saat komponen pertama kali dirender
   useEffect(() => {
     getOutfits();
   }, []);
 
-  // Ambil data outfit dari database beserta item-item yang terkait
+  // Ambil data outfit milik user saat ini dan sertakan detail item yang berelasi melalui outfit_items
   const getOutfits = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -65,6 +65,7 @@ export default function OutfitPage() {
         items: outfit.outfit_items?.map((item: any) => item.items).filter(Boolean) || []
       }));
 
+      // Simpan hasil query dalam state untuk ditampilkan dalam UI
       setOutfits(formatted);
     } catch (error: any) {
       console.error(error);
@@ -73,11 +74,12 @@ export default function OutfitPage() {
         type: "error"
       });
     } finally {
+      // Matikan indikator loading ketika request selesai
       setLoading(false);
     }
   };
 
-  // Hapus outfit beserta relasi item di tabel outfit_items
+  // Hapus outfit dan semua entri relasi item yang terkait sebelum memperbarui state UI
   const deleteOutfit = async () => {
     if (!deleteId) return;
 
@@ -96,6 +98,7 @@ export default function OutfitPage() {
 
       if (outfitError) throw outfitError;
 
+      // Hapus entry outfit dari state lokal agar UI segera terupdate
       setOutfits(outfits.filter(outfit => outfit.id_outfit !== deleteId));
       setAlert({
         message: "Outfit berhasil dihapus",
@@ -117,7 +120,7 @@ export default function OutfitPage() {
     return supabase.storage.from("wardrobe-images").getPublicUrl(path).data.publicUrl;
   };
 
-  // Filter outfit berdasarkan kata kunci pencarian nama atau notes
+  // Buat daftar outfit yang cocok berdasarkan input pencarian nama atau catatan
   const filteredOutfits = outfits.filter((outfit) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();

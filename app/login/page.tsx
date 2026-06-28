@@ -10,18 +10,22 @@ import Footer from "@/components/Footer";
 export default function LoginPage() {
   const router = useRouter();
 
+  // State untuk menyimpan input email, password, status loading, dan pesan alert
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  // State untuk menampilkan pesan sukses atau error saat login berlangsung
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
 
+  // Fungsi utama untuk memproses login menggunakan Supabase Auth
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      // Aktifkan status loading saat proses login sedang berjalan
       setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
